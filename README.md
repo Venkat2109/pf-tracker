@@ -5,6 +5,20 @@ A personal finance tracking backend built with **FastAPI**, **PostgreSQL**, and 
 PF Tracker allows users to record income and expenses via a REST API, persist them in a database, and retrieve them for analysis.  
 The project is designed to be **simple to run locally**, **easy to extend**, and **production-style in structure**.
 
+
+# PF Tracker
+
+🚧 Work in Progress 🚧
+
+Personal finance tracker built with:
+- React + TypeScript
+- FastAPI backend
+- Charts, calendar view, dark mode
+- Dockerized setup
+
+This project is actively being developed.
+
+
 > This project is primarily built for personal use, but is fully open-source and can be self-hosted by anyone.
 
 ---
