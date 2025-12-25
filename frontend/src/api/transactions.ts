@@ -1,38 +1,46 @@
-const API_URL = "http://localhost:8000/api/v1/transactions";
+// frontend/src/api/transactions.ts
 
-export type Transaction = {
-  id: number;
-  amount: number;
-  type: "income" | "expense";
-  note?: string;
-  date: string;
-};
+export interface Transaction {
+  id: number
+  amount: number
+  type: "income" | "expense"
+  date: string
+  note?: string
+}
 
-export async function fetchTransactions(): Promise<Transaction[]> {
-  const res = await fetch(API_URL);
+const API_BASE = "http://localhost:8000/api/v1/transactions"
 
+export async function getTransactions(): Promise<Transaction[]> {
+  const res = await fetch(API_BASE)
   if (!res.ok) {
-    throw new Error("Failed to fetch transactions");
+    throw new Error("Failed to fetch transactions")
   }
-
-  return res.json();
+  return res.json()
 }
 
 export async function createTransaction(data: {
-  amount: number;
-  type: "income" | "expense";
-  note?: string;
-  date: string;
-}) {
-  const res = await fetch(API_URL, {
+  amount: number
+  type: "income" | "expense"
+  note?: string
+}): Promise<Transaction> {
+  const res = await fetch(API_BASE, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      account_id: 1,
+      category_id: 1,
+      amount: data.amount,
+      type: data.type,
+      date: new Date().toISOString().split("T")[0],
+      note: data.note
+    })
+  })
 
   if (!res.ok) {
-    throw new Error("Failed to create transaction");
+    throw new Error("Failed to create transaction")
   }
 
-  return res.json();
+  return res.json()
 }
