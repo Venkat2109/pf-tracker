@@ -20,10 +20,12 @@ export function generateInsights(transactions: Transaction[]) {
       "⚠️ You spent more than you earned. Consider reducing discretionary expenses."
     )
   } else {
-    insights.push("✅ Your expenses are under control. Good financial discipline!")
+    insights.push(
+      "✅ Your expenses are under control. Good financial discipline!"
+    )
   }
 
-  // 2️⃣ Category dominance
+  // 2️⃣ Category dominance (FIXED)
   const categoryTotals: Record<string, number> = {}
 
   expenses.forEach(t => {
@@ -37,18 +39,18 @@ export function generateInsights(transactions: Transaction[]) {
 
   if (topCategory) {
     insights.push(
-      `🍔 Most of your spending goes towards **${topCategory[0]}**. This might be an area to optimize.`
+      `🍔 Most of your spending goes towards <strong>${topCategory[0]}</strong>. This might be an area to optimize.`
     )
   }
 
-  // 3️⃣ High-frequency spending detection
+  // 3️⃣ High-frequency spending
   if (expenses.length >= 10) {
     insights.push(
       "🔁 You have frequent expenses. Small daily spends can add up quickly."
     )
   }
 
-  // 4️⃣ Weekend spending pattern
+  // 4️⃣ Weekend pattern
   const weekendSpends = expenses.filter(t => {
     const day = new Date(t.date).getDay()
     return day === 0 || day === 6

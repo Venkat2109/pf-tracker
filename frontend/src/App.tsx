@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { SettingsProvider } from "./context/SettingsContext"
-import "./styles.css"
 import Dashboard from "./pages/Dashboard"
 import HistoryPage from "./pages/HistoryPage"
 

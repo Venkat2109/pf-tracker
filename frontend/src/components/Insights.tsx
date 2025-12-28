@@ -26,7 +26,7 @@ export default function Insights({
             transition={{ delay: idx * 0.1 }}
             style={{ marginBottom: 12, lineHeight: 1.6 }}
           >
-            {insight}
+            <span dangerouslySetInnerHTML={{ __html: insight }} />
           </motion.li>
         ))}
       </ul>

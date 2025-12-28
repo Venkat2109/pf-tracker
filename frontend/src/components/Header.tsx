@@ -1,122 +1,128 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
-import { FaHome, FaCalendarAlt, FaCog } from "react-icons/fa"
+import { FaHome, FaCalendarAlt, FaCog, FaFileDownload } from "react-icons/fa"
 import { useSettings } from "../context/SettingsContext"
+import { getTransactions } from "../api/transactions"
+import { exportToCSV } from "../utils/exportCSV"
 
 export default function Header() {
   const { theme, toggleTheme, reduceMotion, toggleReduceMotion } =
     useSettings()
 
   const [open, setOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // 🔹 Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false)
+      }
+    }
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [open])
+
+  // 🔹 Download full history as CSV
+  async function handleDownloadCSV() {
+    const tx = await getTransactions()
+    exportToCSV(tx)
+    setOpen(false)
+  }
 
   return (
-    <header
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 40
-      }}
-    >
-      {/* LEFT: App Title */}
-      <h1 style={{ margin: 0 }}>PF Tracker</h1>
+    <header>
+      {/* LEFT */}
+      <h1>PF Tracker</h1>
 
-      {/* RIGHT: Navigation + Settings */}
+      {/* RIGHT */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 18,
+          gap: 16,
           position: "relative"
         }}
       >
-        {/* Dashboard */}
-        <Link
-          to="/"
-          title="Dashboard"
-          style={{
-            fontSize: 18,
-            color: "var(--text)",
-            display: "flex",
-            alignItems: "center"
-          }}
-        >
+        <Link to="/" title="Dashboard">
           <FaHome />
         </Link>
 
-        {/* History / Calendar */}
-        <Link
-          to="/history"
-          title="Transaction History & Calendar"
-          style={{
-            fontSize: 18,
-            color: "var(--text)",
-            display: "flex",
-            alignItems: "center"
-          }}
-        >
+        <Link to="/history" title="History & Calendar">
           <FaCalendarAlt />
         </Link>
 
-        {/* Settings Button */}
         <button
           className="secondary"
-          onClick={() => setOpen(o => !o)}
           aria-label="Settings"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 10
-          }}
+          onClick={() => setOpen(o => !o)}
         >
           <FaCog />
         </button>
 
-        {/* SETTINGS DROPDOWN */}
         {open && (
           <div
+            ref={dropdownRef}
             className="card"
             style={{
               position: "absolute",
               right: 0,
-              top: 52,
+              top: 44,
               width: 240,
-              zIndex: 20
+              zIndex: 100
             }}
           >
-            <div style={{ display: "grid", gap: 16 }}>
-              <label
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  alignItems: "center",
-                  cursor: "pointer"
-                }}
-              >
+            <div style={{ display: "grid", gap: 14 }}>
+              {/* Theme */}
+              <label className="label" style={{ display: "flex", gap: 10 }}>
                 <input
                   type="checkbox"
                   checked={theme === "dark"}
-                  onChange={toggleTheme}
+                  onChange={() => {
+                    toggleTheme()
+                    setOpen(false)
+                  }}
                 />
                 Dark mode
               </label>
 
-              <label
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  alignItems: "center",
-                  cursor: "pointer"
-                }}
-              >
+              {/* Reduce motion */}
+              <label className="label" style={{ display: "flex", gap: 10 }}>
                 <input
                   type="checkbox"
                   checked={reduceMotion}
-                  onChange={toggleReduceMotion}
+                  onChange={() => {
+                    toggleReduceMotion()
+                    setOpen(false)
+                  }}
                 />
                 Reduce animations
               </label>
+
+              <hr style={{ borderColor: "var(--border)" }} />
+
+              {/* CSV Export */}
+              <button
+                className="secondary"
+                onClick={handleDownloadCSV}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8
+                }}
+              >
+                <FaFileDownload />
+                Download CSV
+              </button>
             </div>
           </div>
         )}

@@ -1,31 +1,34 @@
-export default function DashboardControls({ view, onChangeView, onExportCSV }) {
+type Props = {
+  month: Date
+  onPrev: () => void
+  onNext: () => void
+}
+
+export default function DashboardControls({ month, onPrev, onNext }: Props) {
+  const label = month.toLocaleString("default", {
+    month: "long",
+    year: "numeric"
+  })
+
   return (
     <div
+      className="card section"
       style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 28,
-        gap: 20,
-        flexWrap: "wrap"
+        gap: 16
       }}
     >
-      <div className="button-group">
-        <button
-          className={view === "month" ? "" : "secondary"}
-          onClick={() => onChangeView("month")}
-        >
-          Monthly
-        </button>
-        <button
-          className={view === "year" ? "" : "secondary"}
-          onClick={() => onChangeView("year")}
-        >
-          Yearly
-        </button>
-      </div>
+      <button className="secondary" onClick={onPrev}>
+        ◀ Prev
+      </button>
 
-      <button onClick={onExportCSV}>⬇ Export CSV</button>
+      <h2 style={{ margin: 0 }}>{label}</h2>
+
+      <button className="secondary" onClick={onNext}>
+        Next ▶
+      </button>
     </div>
   )
 }

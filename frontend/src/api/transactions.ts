@@ -25,9 +25,7 @@ export async function createTransaction(data: {
 }): Promise<Transaction> {
   const res = await fetch(API_BASE, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       account_id: 1,
       category_id: 1,
@@ -43,4 +41,37 @@ export async function createTransaction(data: {
   }
 
   return res.json()
+}
+
+/* ✅ NEW: Update transaction */
+export async function updateTransaction(
+  id: number,
+  data: {
+    amount: number
+    type: "income" | "expense"
+    note?: string
+  }
+): Promise<Transaction> {
+  const res = await fetch(`${API_BASE}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to update transaction")
+  }
+
+  return res.json()
+}
+
+/* ✅ NEW: Delete transaction */
+export async function deleteTransaction(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/${id}`, {
+    method: "DELETE"
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to delete transaction")
+  }
 }

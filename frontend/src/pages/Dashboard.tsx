@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 
 import {
@@ -10,22 +10,30 @@ import {
 import TransactionForm from "../components/TransactionForm"
 import SummaryChart from "../components/SummaryChart"
 import ExpenseChart from "../components/ExpenseChart"
+import ExpenseHeatmap from "../components/ExpenseHeatmap"
 import Header from "../components/Header"
 import DashboardControls from "../components/DashboardControl"
 import Insights from "../components/Insights"
 import Loading from "../components/Loading"
 
-import { exportToCSV } from "../utils/exportCSV"
+function isTyping() {
+  const el = document.activeElement
+  return (
+    el instanceof HTMLInputElement ||
+    el instanceof HTMLTextAreaElement ||
+    el?.getAttribute("contenteditable") === "true"
+  )
+}
 
 export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Month / Year toggle
-  const [view, setView] = useState<"month" | "year">("month")
-
-  // Editing state
+  const [currentMonth, setCurrentMonth] = useState(new Date())
   const [editing, setEditing] = useState<Transaction | null>(null)
+
+  // For "G then D / H" navigation
+  const lastKeyRef = useRef<string | null>(null)
 
   async function loadTransactions() {
     setLoading(true)
@@ -38,148 +46,191 @@ export default function Dashboard() {
     loadTransactions()
   }, [])
 
-  // Filter transactions by month/year
+  function prevMonth() {
+    setCurrentMonth(
+      d => new Date(d.getFullYear(), d.getMonth() - 1)
+    )
+  }
+
+  function nextMonth() {
+    setCurrentMonth(
+      d => new Date(d.getFullYear(), d.getMonth() + 1)
+    )
+  }
+
   const filteredTransactions = transactions.filter(t => {
-    if (view === "year") return true
-    const txMonth = new Date(t.date).getMonth()
-    const currentMonth = new Date().getMonth()
-    return txMonth === currentMonth
+    const d = new Date(t.date)
+    return (
+      d.getMonth() === currentMonth.getMonth() &&
+      d.getFullYear() === currentMonth.getFullYear()
+    )
   })
 
   const income = filteredTransactions
     .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0)
+    .reduce((s, t) => s + t.amount, 0)
 
   const expense = filteredTransactions
     .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0)
+    .reduce((s, t) => s + t.amount, 0)
 
   const balance = income - expense
 
-  async function handleAddOrEdit(tx: Omit<Transaction, "id" | "date">) {
+  async function handleAddOrEdit(
+    tx: Omit<Transaction, "id" | "date">
+  ) {
     await createTransaction(tx)
     setEditing(null)
     await loadTransactions()
   }
 
-  function handleDelete(id: number) {
-    if (!confirm("Delete this transaction?")) return
-    setTransactions(prev => prev.filter(t => t.id !== id))
-  }
+  /* ============================
+     ⌨️ KEYBOARD SHORTCUTS (SAFE)
+     ============================ */
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (isTyping()) return
+
+      // Shift + Arrow navigation
+      if (e.shiftKey && e.key === "ArrowLeft") {
+        e.preventDefault()
+        prevMonth()
+        return
+      }
+
+      if (e.shiftKey && e.key === "ArrowRight") {
+        e.preventDefault()
+        nextMonth()
+        return
+      }
+
+      // Add new transaction
+      if (e.key.toLowerCase() === "n") {
+        e.preventDefault()
+        setEditing(null)
+        window.scrollTo({ top: 0, behavior: "smooth" })
+        return
+      }
+
+      // Export CSV (Shift + E)
+      if (e.shiftKey && e.key.toLowerCase() === "e") {
+        e.preventDefault()
+        alert("CSV export shortcut triggered (hook it here)")
+        return
+      }
+
+      // GitHub-style navigation: G then D / H
+      if (lastKeyRef.current === "g") {
+        if (e.key.toLowerCase() === "d") {
+          window.location.href = "/"
+        }
+        if (e.key.toLowerCase() === "h") {
+          window.location.href = "/history"
+        }
+        lastKeyRef.current = null
+        return
+      }
+
+      if (e.key.toLowerCase() === "g") {
+        lastKeyRef.current = "g"
+        setTimeout(() => (lastKeyRef.current = null), 800)
+        return
+      }
+
+      // Help overlay
+      if (e.key === "?") {
+        alert(
+          `Keyboard Shortcuts:
+N – Add transaction
+Shift + ← / → – Change month
+G then D – Dashboard
+G then H – History
+Shift + E – Export CSV`
+        )
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [])
 
   return (
     <div className="container">
-      {/* HEADER */}
       <Header />
 
-      {/* DASHBOARD CONTROLS */}
       <DashboardControls
-        view={view}
-        onChangeView={setView}
-        onExportCSV={() => exportToCSV(filteredTransactions)}
+        month={currentMonth}
+        onPrev={prevMonth}
+        onNext={nextMonth}
       />
 
-      {/* SUMMARY CARDS */}
-      <motion.div
-        className="stats"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
+      <motion.div className="stats">
         {[
           { label: "Income", value: income, className: "income" },
           { label: "Expense", value: expense, className: "expense" },
           { label: "Balance", value: balance, className: "balance" }
-        ].map((item, index) => (
-          <motion.div
-            key={item.label}
-            className={`card ${item.className}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.15 }}
-            whileHover={{ scale: 1.05 }}
-          >
+        ].map(item => (
+          <div key={item.label} className={`card ${item.className}`}>
             <p>{item.label}</p>
             <h2>₹{item.value}</h2>
-          </motion.div>
+          </div>
         ))}
       </motion.div>
 
-      {/* ADD / EDIT TRANSACTION */}
-      <motion.div
-        className="card section"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-      >
+      <div className="card section">
         <h2>{editing ? "Edit Transaction" : "Add Transaction"}</h2>
         <TransactionForm
           onAdd={handleAddOrEdit}
           initialData={editing ?? undefined}
         />
-      </motion.div>
+      </div>
 
-      {/* CHARTS */}
-      <div
-        className="section"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 32
-        }}
-      >
+      <div className="section" style={{ display: "grid", gap: 32 }}>
         <SummaryChart transactions={filteredTransactions} />
         <ExpenseChart transactions={filteredTransactions} />
       </div>
 
-      {/* INSIGHTS */}
+      <ExpenseHeatmap
+        transactions={filteredTransactions}
+        month={currentMonth}
+      />
+
       <Insights transactions={filteredTransactions} />
 
-      {/* TRANSACTIONS TABLE */}
-      <motion.div
-        className="card section"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
+      <div className="card section">
         <h2>
-          Transactions ({view === "month" ? "This Month" : "This Year"})
+          Transactions –{" "}
+          {currentMonth.toLocaleString("default", {
+            month: "long",
+            year: "numeric"
+          })}
         </h2>
 
         {loading ? (
           <Loading message="Fetching transactions..." />
-        ) : filteredTransactions.length === 0 ? (
-          <p style={{ textAlign: "center", color: "var(--muted)" }}>
-            No transactions yet. Add your first one 👇
-          </p>
         ) : (
           <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Note</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
             <tbody>
               {filteredTransactions.map(t => (
                 <tr key={t.id}>
                   <td>{t.date}</td>
-                  <td className={t.type}>{t.type.toUpperCase()}</td>
+                  <td>{t.type}</td>
                   <td>₹{t.amount}</td>
                   <td>{t.note}</td>
-                  <td style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => setEditing(t)}>✏️</button>
-                    <button onClick={() => handleDelete(t.id)}>🗑</button>
+                  <td>
+                    <button
+                      className="secondary"
+                      onClick={() => setEditing(t)}
+                    >
+                      ✏️
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </motion.div>
+      </div>
     </div>
   )
 }

@@ -2,9 +2,15 @@ import { Transaction } from "../api/transactions"
 
 type Props = {
   transactions: Transaction[]
+  selectedDate?: string | null
+  onSelectDate?: (date: string | null) => void
 }
 
-export default function ExpenseCalendar({ transactions }: Props) {
+export default function ExpenseCalendar({
+  transactions,
+  selectedDate,
+  onSelectDate
+}: Props) {
   const today = new Date()
   const year = today.getFullYear()
   const month = today.getMonth()
@@ -18,16 +24,17 @@ export default function ExpenseCalendar({ transactions }: Props) {
     if (t.type !== "expense") return
     const d = new Date(t.date)
     if (d.getMonth() === month && d.getFullYear() === year) {
-      const day = d.getDate()
-      expensesByDay[day] = (expensesByDay[day] || 0) + t.amount
+      expensesByDay[d.getDate()] =
+        (expensesByDay[d.getDate()] || 0) + t.amount
     }
   })
 
   return (
-    <div className="card">
+    <div className="card section">
       <h3>Expense Calendar</h3>
 
-      <div className="calendar-grid calendar-header">
+      {/* Day labels */}
+      <div className="calendar-header">
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => (
           <div key={d} className="calendar-label">
             {d}
@@ -35,6 +42,7 @@ export default function ExpenseCalendar({ transactions }: Props) {
         ))}
       </div>
 
+      {/* Calendar grid */}
       <div className="calendar-grid">
         {Array.from({ length: firstDay === 0 ? 6 : firstDay - 1 }).map(
           (_, i) => (
@@ -44,13 +52,22 @@ export default function ExpenseCalendar({ transactions }: Props) {
 
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1
-          const isToday = day === today.getDate()
+          const dateStr = `${year}-${String(month + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`
+
           const expense = expensesByDay[day]
+          const isSelected = selectedDate === dateStr
 
           return (
             <div
               key={day}
-              className={`calendar-day ${isToday ? "today" : ""}`}
+              className={`calendar-day ${isSelected ? "today" : ""}`}
+              onClick={() =>
+                onSelectDate?.(isSelected ? null : dateStr)
+              }
+              style={{ cursor: "pointer" }}
             >
               <span className="calendar-date">{day}</span>
 
