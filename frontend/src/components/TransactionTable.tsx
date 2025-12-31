@@ -8,39 +8,36 @@ import EditTransactionModal from "./EditTransactionModal"
 
 export default function TransactionTable({
   transactions,
-  onUpdate
+  onReload
 }: {
   transactions: Transaction[]
-  onUpdate: (tx: Transaction[]) => void
+  onReload: () => void
 }) {
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [loadingId, setLoadingId] = useState<number | null>(null)
 
-  async function deleteTx(id: number) {
+  async function handleDelete(id: number) {
     if (!confirm("Delete this transaction?")) return
 
     try {
       setLoadingId(id)
       await deleteTransaction(id)
-      onUpdate(transactions.filter(t => t.id !== id))
+      onReload()
     } finally {
       setLoadingId(null)
     }
   }
 
-  async function saveTx(updated: Transaction) {
-    const saved = await updateTransaction(updated.id, {
+  async function handleSave(updated: Transaction) {
+    await updateTransaction(updated.id, {
       amount: updated.amount,
       type: updated.type,
+      date: updated.date,
       note: updated.note
     })
 
-    onUpdate(
-      transactions.map(t =>
-        t.id === saved.id ? saved : t
-      )
-    )
     setEditing(null)
+    onReload()
   }
 
   return (
@@ -52,7 +49,7 @@ export default function TransactionTable({
             <th>Type</th>
             <th>Amount</th>
             <th>Note</th>
-            <th style={{ width: 120 }} />
+            <th />
           </tr>
         </thead>
 
@@ -65,37 +62,27 @@ export default function TransactionTable({
                 className={t.type === "income" ? "income" : "expense"}
                 style={{ fontWeight: 600 }}
               >
-                {t.type}
+                {t.type.toUpperCase()}
               </td>
 
               <td>₹{t.amount}</td>
               <td>{t.note}</td>
 
-              <td>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    justifyContent: "flex-end"
-                  }}
+              <td style={{ display: "flex", gap: 8 }}>
+                <button
+                  className="secondary"
+                  onClick={() => setEditing(t)}
                 >
-                  <button
-                    className="secondary"
-                    onClick={() => setEditing(t)}
-                    title="Edit"
-                  >
-                    ✏️
-                  </button>
+                  ✏️
+                </button>
 
-                  <button
-                    className="secondary"
-                    onClick={() => deleteTx(t.id)}
-                    disabled={loadingId === t.id}
-                    title="Delete"
-                  >
-                    🗑️
-                  </button>
-                </div>
+                <button
+                  className="secondary"
+                  disabled={loadingId === t.id}
+                  onClick={() => handleDelete(t.id)}
+                >
+                  🗑️
+                </button>
               </td>
             </tr>
           ))}
@@ -106,7 +93,7 @@ export default function TransactionTable({
         <EditTransactionModal
           transaction={editing}
           onClose={() => setEditing(null)}
-          onSave={saveTx}
+          onSave={handleSave}
         />
       )}
     </>

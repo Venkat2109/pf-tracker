@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 
 import {
@@ -8,6 +8,7 @@ import {
 } from "../api/transactions"
 
 import TransactionForm from "../components/TransactionForm"
+import TransactionTable from "../components/TransactionTable"
 import SummaryChart from "../components/SummaryChart"
 import ExpenseChart from "../components/ExpenseChart"
 import ExpenseHeatmap from "../components/ExpenseHeatmap"
@@ -15,25 +16,23 @@ import Header from "../components/Header"
 import DashboardControls from "../components/DashboardControl"
 import Insights from "../components/Insights"
 import Loading from "../components/Loading"
+import ShortcutHelp from "../components/ShortcutHelp"
 
-function isTyping() {
-  const el = document.activeElement
-  return (
-    el instanceof HTMLInputElement ||
-    el instanceof HTMLTextAreaElement ||
-    el?.getAttribute("contenteditable") === "true"
-  )
-}
+import { exportToCSV } from "../utils/exportCSV"
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
 
 export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
 
+  // 📅 Month navigation
   const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [editing, setEditing] = useState<Transaction | null>(null)
 
-  // For "G then D / H" navigation
-  const lastKeyRef = useRef<string | null>(null)
+  // ⌨️ Shortcut help modal
+  const [showHelp, setShowHelp] = useState(false)
+
+  // 🎯 Focus add transaction
+  const addRef = useRef<HTMLDivElement>(null)
 
   async function loadTransactions() {
     setLoading(true)
@@ -46,18 +45,16 @@ export default function Dashboard() {
     loadTransactions()
   }, [])
 
+  // ⬅️➡️ Month navigation
   function prevMonth() {
-    setCurrentMonth(
-      d => new Date(d.getFullYear(), d.getMonth() - 1)
-    )
+    setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() - 1))
   }
 
   function nextMonth() {
-    setCurrentMonth(
-      d => new Date(d.getFullYear(), d.getMonth() + 1)
-    )
+    setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() + 1))
   }
 
+  // 📌 Filter transactions by selected month
   const filteredTransactions = transactions.filter(t => {
     const d = new Date(t.date)
     return (
@@ -66,138 +63,118 @@ export default function Dashboard() {
     )
   })
 
+  // 💰 Calculations
   const income = filteredTransactions
     .filter(t => t.type === "income")
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((sum, t) => sum + t.amount, 0)
 
   const expense = filteredTransactions
     .filter(t => t.type === "expense")
-    .reduce((s, t) => s + t.amount, 0)
+    .reduce((sum, t) => sum + t.amount, 0)
 
   const balance = income - expense
 
-  async function handleAddOrEdit(
+  // ➕ Add transaction
+  async function handleAdd(
     tx: Omit<Transaction, "id" | "date">
   ) {
     await createTransaction(tx)
-    setEditing(null)
     await loadTransactions()
   }
 
-  /* ============================
-     ⌨️ KEYBOARD SHORTCUTS (SAFE)
-     ============================ */
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (isTyping()) return
-
-      // Shift + Arrow navigation
-      if (e.shiftKey && e.key === "ArrowLeft") {
-        e.preventDefault()
-        prevMonth()
-        return
-      }
-
-      if (e.shiftKey && e.key === "ArrowRight") {
-        e.preventDefault()
-        nextMonth()
-        return
-      }
-
-      // Add new transaction
-      if (e.key.toLowerCase() === "n") {
-        e.preventDefault()
-        setEditing(null)
-        window.scrollTo({ top: 0, behavior: "smooth" })
-        return
-      }
-
-      // Export CSV (Shift + E)
-      if (e.shiftKey && e.key.toLowerCase() === "e") {
-        e.preventDefault()
-        alert("CSV export shortcut triggered (hook it here)")
-        return
-      }
-
-      // GitHub-style navigation: G then D / H
-      if (lastKeyRef.current === "g") {
-        if (e.key.toLowerCase() === "d") {
-          window.location.href = "/"
-        }
-        if (e.key.toLowerCase() === "h") {
-          window.location.href = "/history"
-        }
-        lastKeyRef.current = null
-        return
-      }
-
-      if (e.key.toLowerCase() === "g") {
-        lastKeyRef.current = "g"
-        setTimeout(() => (lastKeyRef.current = null), 800)
-        return
-      }
-
-      // Help overlay
-      if (e.key === "?") {
-        alert(
-          `Keyboard Shortcuts:
-N – Add transaction
-Shift + ← / → – Change month
-G then D – Dashboard
-G then H – History
-Shift + E – Export CSV`
-        )
-      }
-    }
-
-    window.addEventListener("keydown", onKeyDown)
-    return () => window.removeEventListener("keydown", onKeyDown)
-  }, [])
+  // ⌨️ KEYBOARD SHORTCUTS (non-colliding)
+  useKeyboardShortcuts({
+    onPrevMonth: prevMonth,
+    onNextMonth: nextMonth,
+    onResetMonth: () => setCurrentMonth(new Date()),
+    onExportCSV: () => exportToCSV(filteredTransactions),
+    onFocusAdd: () =>
+      addRef.current?.scrollIntoView({ behavior: "smooth" }),
+    onToggleHelp: () => setShowHelp(v => !v)
+  })
 
   return (
     <div className="container">
+      {/* HEADER */}
       <Header />
 
+      {/* MONTH NAVIGATION */}
       <DashboardControls
         month={currentMonth}
         onPrev={prevMonth}
         onNext={nextMonth}
       />
 
-      <motion.div className="stats">
+      {/* SUMMARY CARDS */}
+      <motion.div
+        className="stats"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         {[
           { label: "Income", value: income, className: "income" },
           { label: "Expense", value: expense, className: "expense" },
           { label: "Balance", value: balance, className: "balance" }
-        ].map(item => (
-          <div key={item.label} className={`card ${item.className}`}>
+        ].map((item, index) => (
+          <motion.div
+            key={item.label}
+            className={`card ${item.className}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.15 }}
+            whileHover={{ scale: 1.05 }}
+          >
             <p>{item.label}</p>
             <h2>₹{item.value}</h2>
-          </div>
+          </motion.div>
         ))}
       </motion.div>
 
-      <div className="card section">
-        <h2>{editing ? "Edit Transaction" : "Add Transaction"}</h2>
-        <TransactionForm
-          onAdd={handleAddOrEdit}
-          initialData={editing ?? undefined}
-        />
+      {/* ADD TRANSACTION */}
+      <div ref={addRef}>
+        <motion.div
+          className="card section"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h2>Add Transaction</h2>
+          <TransactionForm onAdd={handleAdd} />
+        </motion.div>
       </div>
 
-      <div className="section" style={{ display: "grid", gap: 32 }}>
+      {/* CHARTS */}
+      <div
+        className="section"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 32
+        }}
+      >
         <SummaryChart transactions={filteredTransactions} />
         <ExpenseChart transactions={filteredTransactions} />
       </div>
 
-      <ExpenseHeatmap
-        transactions={filteredTransactions}
-        month={currentMonth}
-      />
+      {/* 🔥 EXPENSE HEATMAP */}
+      <div className="section">
+        <ExpenseHeatmap
+          transactions={filteredTransactions}
+          month={currentMonth}
+        />
+      </div>
 
+      {/* 🧠 INSIGHTS */}
       <Insights transactions={filteredTransactions} />
 
-      <div className="card section">
+      {/* ✅ TRANSACTIONS TABLE (BACKEND CONNECTED) */}
+      <motion.div
+        className="card section"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
         <h2>
           Transactions –{" "}
           {currentMonth.toLocaleString("default", {
@@ -208,29 +185,22 @@ Shift + E – Export CSV`
 
         {loading ? (
           <Loading message="Fetching transactions..." />
+        ) : filteredTransactions.length === 0 ? (
+          <p style={{ textAlign: "center", color: "var(--muted)" }}>
+            No transactions this month 👇
+          </p>
         ) : (
-          <table>
-            <tbody>
-              {filteredTransactions.map(t => (
-                <tr key={t.id}>
-                  <td>{t.date}</td>
-                  <td>{t.type}</td>
-                  <td>₹{t.amount}</td>
-                  <td>{t.note}</td>
-                  <td>
-                    <button
-                      className="secondary"
-                      onClick={() => setEditing(t)}
-                    >
-                      ✏️
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <TransactionTable
+            transactions={filteredTransactions}
+            onReload={loadTransactions}
+          />
         )}
-      </div>
+      </motion.div>
+
+      {/* ⌨️ SHORTCUT HELP */}
+      {showHelp && (
+        <ShortcutHelp onClose={() => setShowHelp(false)} />
+      )}
     </div>
   )
 }

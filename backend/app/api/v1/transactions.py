@@ -7,6 +7,7 @@ from app.schemas import TransactionIn, TransactionOut
 
 router = APIRouter()
 
+
 @router.post("/", response_model=TransactionOut, status_code=201)
 def create_transaction(
     payload: TransactionIn,
@@ -23,8 +24,7 @@ def create_transaction(
 def list_transactions(
     session: Session = Depends(get_session),
 ):
-    statement = select(Transaction)
-    return session.exec(statement).all()
+    return session.exec(select(Transaction)).all()
 
 
 @router.put("/{transaction_id}", response_model=TransactionOut)
@@ -41,13 +41,12 @@ def update_transaction(
     for key, value in payload.model_dump().items():
         setattr(transaction, key, value)
 
-    session.add(transaction)
     session.commit()
     session.refresh(transaction)
     return transaction
 
 
-@router.delete("/{transaction_id}")
+@router.delete("/{transaction_id}", status_code=204)
 def delete_transaction(
     transaction_id: int,
     session: Session = Depends(get_session),
@@ -59,4 +58,3 @@ def delete_transaction(
 
     session.delete(transaction)
     session.commit()
-    return {"ok": True}

@@ -1,5 +1,3 @@
-// frontend/src/api/transactions.ts
-
 export interface Transaction {
   id: number
   amount: number
@@ -12,9 +10,7 @@ const API_BASE = "http://localhost:8000/api/v1/transactions"
 
 export async function getTransactions(): Promise<Transaction[]> {
   const res = await fetch(API_BASE)
-  if (!res.ok) {
-    throw new Error("Failed to fetch transactions")
-  }
+  if (!res.ok) throw new Error("Failed to fetch transactions")
   return res.json()
 }
 
@@ -36,20 +32,17 @@ export async function createTransaction(data: {
     })
   })
 
-  if (!res.ok) {
-    throw new Error("Failed to create transaction")
-  }
-
+  if (!res.ok) throw new Error("Failed to create transaction")
   return res.json()
 }
 
-/* ✅ NEW: Update transaction */
 export async function updateTransaction(
   id: number,
   data: {
     amount: number
     type: "income" | "expense"
     note?: string
+    date: string
   }
 ): Promise<Transaction> {
   const res = await fetch(`${API_BASE}/${id}`, {
@@ -58,20 +51,11 @@ export async function updateTransaction(
     body: JSON.stringify(data)
   })
 
-  if (!res.ok) {
-    throw new Error("Failed to update transaction")
-  }
-
+  if (!res.ok) throw new Error("Failed to update transaction")
   return res.json()
 }
 
-/* ✅ NEW: Delete transaction */
 export async function deleteTransaction(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/${id}`, {
-    method: "DELETE"
-  })
-
-  if (!res.ok) {
-    throw new Error("Failed to delete transaction")
-  }
+  const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" })
+  if (!res.ok) throw new Error("Failed to delete transaction")
 }
