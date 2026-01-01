@@ -8,12 +8,25 @@ export interface Transaction {
 
 const API_BASE = "http://localhost:8000/api/v1/transactions"
 
+/* 🔐 Helper to attach JWT */
+function authHeaders() {
+  const token = localStorage.getItem("token")
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+/* 📥 GET ALL TRANSACTIONS */
 export async function getTransactions(): Promise<Transaction[]> {
-  const res = await fetch(API_BASE)
+  const res = await fetch(API_BASE, {
+    headers: {
+      ...authHeaders()
+    }
+  })
+
   if (!res.ok) throw new Error("Failed to fetch transactions")
   return res.json()
 }
 
+/* ➕ CREATE TRANSACTION */
 export async function createTransaction(data: {
   amount: number
   type: "income" | "expense"
@@ -21,7 +34,10 @@ export async function createTransaction(data: {
 }): Promise<Transaction> {
   const res = await fetch(API_BASE, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders()
+    },
     body: JSON.stringify({
       account_id: 1,
       category_id: 1,
@@ -36,6 +52,7 @@ export async function createTransaction(data: {
   return res.json()
 }
 
+/* ✏️ UPDATE TRANSACTION */
 export async function updateTransaction(
   id: number,
   data: {
@@ -47,7 +64,10 @@ export async function updateTransaction(
 ): Promise<Transaction> {
   const res = await fetch(`${API_BASE}/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders()
+    },
     body: JSON.stringify(data)
   })
 
@@ -55,7 +75,14 @@ export async function updateTransaction(
   return res.json()
 }
 
+/* 🗑 DELETE TRANSACTION */
 export async function deleteTransaction(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" })
+  const res = await fetch(`${API_BASE}/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...authHeaders()
+    }
+  })
+
   if (!res.ok) throw new Error("Failed to delete transaction")
 }

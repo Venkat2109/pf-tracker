@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from "react"
-import { Link } from "react-router-dom"
-import { FaHome, FaCalendarAlt, FaCog, FaFileDownload } from "react-icons/fa"
+import { Link, useNavigate } from "react-router-dom"
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaCog,
+  FaFileDownload,
+  FaSignOutAlt
+} from "react-icons/fa"
+
 import { useSettings } from "../context/SettingsContext"
 import { getTransactions } from "../api/transactions"
 import { exportToCSV } from "../utils/exportCSV"
@@ -11,8 +18,9 @@ export default function Header() {
 
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
-  // 🔹 Close dropdown when clicking outside
+  /* 🔹 Close dropdown when clicking outside */
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -32,11 +40,18 @@ export default function Header() {
     }
   }, [open])
 
-  // 🔹 Download full history as CSV
+  /* 🔹 Download full history as CSV */
   async function handleDownloadCSV() {
     const tx = await getTransactions()
     exportToCSV(tx)
     setOpen(false)
+  }
+
+  /* 🔐 Logout */
+  function handleLogout() {
+    localStorage.removeItem("token")
+    setOpen(false)
+    navigate("/login")
   }
 
   return (
@@ -83,7 +98,10 @@ export default function Header() {
           >
             <div style={{ display: "grid", gap: 14 }}>
               {/* Theme */}
-              <label className="label" style={{ display: "flex", gap: 10 }}>
+              <label
+                className="label"
+                style={{ display: "flex", gap: 10 }}
+              >
                 <input
                   type="checkbox"
                   checked={theme === "dark"}
@@ -96,7 +114,10 @@ export default function Header() {
               </label>
 
               {/* Reduce motion */}
-              <label className="label" style={{ display: "flex", gap: 10 }}>
+              <label
+                className="label"
+                style={{ display: "flex", gap: 10 }}
+              >
                 <input
                   type="checkbox"
                   checked={reduceMotion}
@@ -122,6 +143,21 @@ export default function Header() {
               >
                 <FaFileDownload />
                 Download CSV
+              </button>
+
+              {/* Logout */}
+              <button
+                className="secondary"
+                onClick={handleLogout}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  color: "var(--expense)"
+                }}
+              >
+                <FaSignOutAlt />
+                Logout
               </button>
             </div>
           </div>
