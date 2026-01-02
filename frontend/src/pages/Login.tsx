@@ -2,23 +2,30 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import AuthLayout from "../components/AuthLayout"
 import { loginUser } from "../api/auth"
+import { useAuth } from "../context/AuthContext"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
   const navigate = useNavigate()
+  const { login } = useAuth() // ✅ FIX
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+    setLoading(true)
 
     try {
       const res = await loginUser({ email, password })
-      localStorage.setItem("token", res.access_token)
+      login(res.access_token) // ✅ IMPORTANT
       navigate("/")
     } catch {
       setError("Invalid email or password")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -50,7 +57,9 @@ export default function Login() {
           </p>
         )}
 
-        <button style={{ width: "100%" }}>Login</button>
+        <button style={{ width: "100%" }} disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
 
         <p className="label" style={{ textAlign: "center" }}>
           New here? <Link to="/register">Create an account</Link>

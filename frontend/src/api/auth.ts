@@ -20,6 +20,7 @@ export async function loginUser(data: {
 export async function registerUser(data: {
   email: string
   password: string
+  username?: string // 👈 optional for backward compatibility
 }) {
   const res = await fetch(`${API_BASE}/register`, {
     method: "POST",

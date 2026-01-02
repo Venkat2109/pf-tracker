@@ -1,29 +1,40 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from passlib.context import CryptContext
 
 from app.db import get_session
 from app.models.user import User
 from app.schemas import UserCreate, UserLogin, Token
-from app.core.security import (
-    hash_password,
-    verify_password,
-    create_access_token,
-)
+from app.security import create_access_token
 
-router = APIRouter()
+router = APIRouter(prefix="/auth", tags=["Auth"])
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@router.post("/register", response_model=Token)
-def register(payload: UserCreate, session: Session = Depends(get_session)):
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd_context.verify(plain, hashed)
+
+
+@router.post("/register")
+def register_user(
+    payload: UserCreate,
+    session: Session = Depends(get_session),
+):
     existing = session.exec(
         select(User).where(User.email == payload.email)
     ).first()
 
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="User already exists")
 
     user = User(
         email=payload.email,
+        username=payload.username,  # ✅ now valid
         hashed_password=hash_password(payload.password),
     )
 
@@ -31,12 +42,14 @@ def register(payload: UserCreate, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(user)
 
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token}
+    return {"message": "User created successfully"}
 
 
 @router.post("/login", response_model=Token)
-def login(payload: UserLogin, session: Session = Depends(get_session)):
+def login_user(
+    payload: UserLogin,
+    session: Session = Depends(get_session),
+):
     user = session.exec(
         select(User).where(User.email == payload.email)
     ).first()
@@ -45,4 +58,5 @@ def login(payload: UserLogin, session: Session = Depends(get_session)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": str(user.id)})
+
     return {"access_token": token}

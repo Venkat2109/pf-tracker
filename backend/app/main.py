@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import transactions
+from app.api.v1 import transactions, auth   # ✅ include auth router
 from app.db import create_db_and_tables
 
 app = FastAPI(
@@ -13,7 +13,10 @@ app = FastAPI(
 # ✅ CORS (important for frontend → backend communication)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,7 +35,14 @@ def root():
         "docs": "/docs"
     }
 
-# ✅ API routes
+# 🔐 AUTH ROUTES (REGISTER + LOGIN)
+app.include_router(
+    auth.router,
+    prefix="/api/v1",
+    tags=["Auth"]
+)
+
+# 💰 TRANSACTION ROUTES
 app.include_router(
     transactions.router,
     prefix="/api/v1/transactions",

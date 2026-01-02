@@ -5,8 +5,11 @@ import { registerUser } from "../api/auth"
 
 export default function Register() {
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
+
   const navigate = useNavigate()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -14,8 +17,12 @@ export default function Register() {
     setError("")
 
     try {
-      await registerUser({ email, password })
-      navigate("/login")
+      await registerUser({ email, username, password })
+      setSuccess(true)
+
+      setTimeout(() => {
+        navigate("/login")
+      }, 1500)
     } catch {
       setError("User already exists or invalid data")
     }
@@ -36,6 +43,12 @@ export default function Register() {
         />
 
         <input
+          placeholder="Username (display name)"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+        />
+
+        <input
           placeholder="Password"
           type="password"
           value={password}
@@ -43,13 +56,21 @@ export default function Register() {
           required
         />
 
+        {success && (
+          <p style={{ color: "var(--income)", fontSize: 14 }}>
+            ✅ Account created! Redirecting to login…
+          </p>
+        )}
+
         {error && (
           <p style={{ color: "var(--expense)", fontSize: 14 }}>
             {error}
           </p>
         )}
 
-        <button style={{ width: "100%" }}>Register</button>
+        <button style={{ width: "100%" }}>
+          Register
+        </button>
 
         <p className="label" style={{ textAlign: "center" }}>
           Already have an account?{" "}

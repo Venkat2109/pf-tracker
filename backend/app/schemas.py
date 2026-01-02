@@ -25,12 +25,13 @@ class TransactionOut(TransactionIn):
 
 
 # =========================
-# AUTH SCHEMAS (FOR LATER)
+# AUTH SCHEMAS
 # =========================
 
 class UserCreate(SQLModel):
     email: str
     password: str
+    username: Optional[str] = None   # ✅ ADD THIS
 
 
 class UserLogin(SQLModel):

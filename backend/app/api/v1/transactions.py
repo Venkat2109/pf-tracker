@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
 from app.db import get_session
-from app.models import Transaction
 from app.schemas import TransactionIn, TransactionOut
 from app.dependencies import get_current_user_id  # ✅ NEW
+from app.models import Transaction
+
 
 router = APIRouter()
 

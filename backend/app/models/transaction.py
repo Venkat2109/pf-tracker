@@ -5,9 +5,7 @@ from sqlmodel import SQLModel, Field
 
 class Transaction(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-
-    # 🔐 USER OWNERSHIP
-    user_id: int = Field(index=True)
+    user_id: Optional[int] = Field(default=None, index=True)
 
     account_id: int
     category_id: int
