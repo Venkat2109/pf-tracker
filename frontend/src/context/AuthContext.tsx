@@ -1,29 +1,50 @@
 import { createContext, useContext, useEffect, useState } from "react"
 
+type UserInfo = {
+  username?: string | null
+}
+
 type AuthContextType = {
   token: string | null
+  user: UserInfo | null
   login: (token: string) => void
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>(null!)
 
+function decodeToken(token: string): UserInfo {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]))
+    return {
+      username: payload.username ?? null
+    }
+  } catch {
+    return {}
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
+  )
+  const [user, setUser] = useState<UserInfo | null>(
+    token ? decodeToken(token) : null
   )
 
   function login(token: string) {
     localStorage.setItem("token", token)
     setToken(token)
+    setUser(decodeToken(token))
   }
 
   function logout() {
     localStorage.removeItem("token")
     setToken(null)
+    setUser(null)
   }
 
-  // 🔐 Auto logout on token expiry
+  // 🔐 Auto logout on expiry
   useEffect(() => {
     if (!token) return
 
@@ -40,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token])
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
@@ -53,4 +74,3 @@ export function useAuth() {
   }
   return ctx
 }
-

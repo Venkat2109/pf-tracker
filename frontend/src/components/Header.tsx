@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa"
 
 import { useSettings } from "../context/SettingsContext"
+import { useAuth } from "../context/AuthContext"
 import { getTransactions } from "../api/transactions"
 import { exportToCSV } from "../utils/exportCSV"
 
@@ -16,9 +17,16 @@ export default function Header() {
   const { theme, toggleTheme, reduceMotion, toggleReduceMotion } =
     useSettings()
 
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const navigate = useNavigate()
+
+  /* 🔹 Welcome text logic */
+  const welcomeText = user?.username
+    ? `Welcome back, ${user.username} 👋`
+    : "Welcome 👋"
 
   /* 🔹 Close dropdown when clicking outside */
   useEffect(() => {
@@ -40,7 +48,7 @@ export default function Header() {
     }
   }, [open])
 
-  /* 🔹 Download full history as CSV */
+  /* 🔹 Download CSV */
   async function handleDownloadCSV() {
     const tx = await getTransactions()
     exportToCSV(tx)
@@ -49,15 +57,14 @@ export default function Header() {
 
   /* 🔐 Logout */
   function handleLogout() {
-    localStorage.removeItem("token")
-    setOpen(false)
+    logout()
     navigate("/login")
   }
 
   return (
     <header>
       {/* LEFT */}
-      <h1>PF Tracker</h1>
+      <h1>{welcomeText}</h1>
 
       {/* RIGHT */}
       <div
@@ -98,10 +105,7 @@ export default function Header() {
           >
             <div style={{ display: "grid", gap: 14 }}>
               {/* Theme */}
-              <label
-                className="label"
-                style={{ display: "flex", gap: 10 }}
-              >
+              <label className="label" style={{ display: "flex", gap: 10 }}>
                 <input
                   type="checkbox"
                   checked={theme === "dark"}
@@ -114,10 +118,7 @@ export default function Header() {
               </label>
 
               {/* Reduce motion */}
-              <label
-                className="label"
-                style={{ display: "flex", gap: 10 }}
-              >
+              <label className="label" style={{ display: "flex", gap: 10 }}>
                 <input
                   type="checkbox"
                   checked={reduceMotion}

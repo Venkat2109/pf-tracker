@@ -26,10 +26,11 @@ export async function getTransactions(): Promise<Transaction[]> {
   return res.json()
 }
 
-/* ➕ CREATE TRANSACTION */
+/* ➕ CREATE TRANSACTION (PAST DATE SUPPORTED) */
 export async function createTransaction(data: {
   amount: number
   type: "income" | "expense"
+  date: string              // ✅ ADD
   note?: string
 }): Promise<Transaction> {
   const res = await fetch(API_BASE, {
@@ -43,23 +44,27 @@ export async function createTransaction(data: {
       category_id: 1,
       amount: data.amount,
       type: data.type,
-      date: new Date().toISOString().split("T")[0],
+      date: data.date,       // ✅ USE PROVIDED DATE
       note: data.note
     })
   })
 
-  if (!res.ok) throw new Error("Failed to create transaction")
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(err || "Failed to create transaction")
+  }
+
   return res.json()
 }
 
-/* ✏️ UPDATE TRANSACTION */
+/* ✏️ UPDATE TRANSACTION (PAST DATE SUPPORTED) */
 export async function updateTransaction(
   id: number,
   data: {
     amount: number
     type: "income" | "expense"
-    note?: string
     date: string
+    note?: string
   }
 ): Promise<Transaction> {
   const res = await fetch(`${API_BASE}/${id}`, {
@@ -71,7 +76,11 @@ export async function updateTransaction(
     body: JSON.stringify(data)
   })
 
-  if (!res.ok) throw new Error("Failed to update transaction")
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(err || "Failed to update transaction")
+  }
+
   return res.json()
 }
 

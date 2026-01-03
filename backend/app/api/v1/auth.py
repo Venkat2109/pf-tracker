@@ -57,6 +57,9 @@ def login_user(
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"sub": str(user.id)})
+    token = create_access_token({
+        "sub": str(user.id),
+        "username": user.username  # ✅ ADD THIS
+    })
 
     return {"access_token": token}
