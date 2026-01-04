@@ -74,15 +74,18 @@ export default function Dashboard() {
 
   const balance = income - expense
 
-  // ➕ Add transaction
-  async function handleAdd(
-    tx: Omit<Transaction, "id" | "date">
-  ) {
+  // ➕ ADD TRANSACTION (✅ FIXED: date preserved)
+  async function handleAdd(tx: {
+    amount: number
+    type: "income" | "expense"
+    note?: string
+    date: string
+  }) {
     await createTransaction(tx)
     await loadTransactions()
   }
 
-  // ⌨️ KEYBOARD SHORTCUTS (non-colliding)
+  // ⌨️ KEYBOARD SHORTCUTS
   useKeyboardShortcuts({
     onPrevMonth: prevMonth,
     onNextMonth: nextMonth,
@@ -168,7 +171,7 @@ export default function Dashboard() {
       {/* 🧠 INSIGHTS */}
       <Insights transactions={filteredTransactions} />
 
-      {/* ✅ TRANSACTIONS TABLE (BACKEND CONNECTED) */}
+      {/* ✅ TRANSACTIONS TABLE */}
       <motion.div
         className="card section"
         initial={{ opacity: 0 }}

@@ -6,7 +6,16 @@ export default function ProtectedRoute({
 }: {
   children: JSX.Element
 }) {
-  const { token } = useAuth()
-  if (!token) return <Navigate to="/login" replace />
+  const { token, isAuthReady } = useAuth()
+
+  // ⏳ Wait until auth is initialized
+  if (!isAuthReady) {
+    return null // or loading spinner if you want
+  }
+
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
+
   return children
 }

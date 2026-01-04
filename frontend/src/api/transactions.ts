@@ -8,29 +8,38 @@ export interface Transaction {
 
 const API_BASE = "http://localhost:8000/api/v1/transactions"
 
-/* 🔐 Helper to attach JWT */
+/* 🔐 Attach JWT */
 function authHeaders() {
   const token = localStorage.getItem("token")
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-/* 📥 GET ALL TRANSACTIONS */
+/* 🚨 Handle auth failure globally */
+async function handleAuthError(res: Response) {
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem("token")
+    window.location.href = "/login"
+    throw new Error("Session expired. Please login again.")
+  }
+}
+
+/* 📥 GET ALL */
 export async function getTransactions(): Promise<Transaction[]> {
   const res = await fetch(API_BASE, {
-    headers: {
-      ...authHeaders()
-    }
+    headers: authHeaders()
   })
+
+  await handleAuthError(res)
 
   if (!res.ok) throw new Error("Failed to fetch transactions")
   return res.json()
 }
 
-/* ➕ CREATE TRANSACTION (PAST DATE SUPPORTED) */
+/* ➕ CREATE (past-date supported) */
 export async function createTransaction(data: {
   amount: number
   type: "income" | "expense"
-  date: string              // ✅ ADD
+  date: string
   note?: string
 }): Promise<Transaction> {
   const res = await fetch(API_BASE, {
@@ -44,10 +53,12 @@ export async function createTransaction(data: {
       category_id: 1,
       amount: data.amount,
       type: data.type,
-      date: data.date,       // ✅ USE PROVIDED DATE
+      date: data.date,
       note: data.note
     })
   })
+
+  await handleAuthError(res)
 
   if (!res.ok) {
     const err = await res.text()
@@ -57,7 +68,7 @@ export async function createTransaction(data: {
   return res.json()
 }
 
-/* ✏️ UPDATE TRANSACTION (PAST DATE SUPPORTED) */
+/* ✏️ UPDATE */
 export async function updateTransaction(
   id: number,
   data: {
@@ -76,6 +87,8 @@ export async function updateTransaction(
     body: JSON.stringify(data)
   })
 
+  await handleAuthError(res)
+
   if (!res.ok) {
     const err = await res.text()
     throw new Error(err || "Failed to update transaction")
@@ -84,14 +97,20 @@ export async function updateTransaction(
   return res.json()
 }
 
-/* 🗑 DELETE TRANSACTION */
+/* 🗑 DELETE */
 export async function deleteTransaction(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/${id}`, {
     method: "DELETE",
-    headers: {
-      ...authHeaders()
-    }
+    headers: authHeaders()
   })
 
-  if (!res.ok) throw new Error("Failed to delete transaction")
+  await handleAuthError(res)
+
+  if (res.status === 401) {
+  throw new Error("Unauthorized")
+  }
+  if (!res.ok) {
+  throw new Error("Failed to fetch transactions")
+  }
+
 }

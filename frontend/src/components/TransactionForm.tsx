@@ -19,11 +19,12 @@ export default function TransactionForm({ onAdd }: Props) {
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!amount) return
+  e.preventDefault()
+  if (!amount) return
 
-    setLoading(true)
+  setLoading(true)
 
+  try {
     await onAdd({
       amount: Number(amount),
       type,
@@ -31,12 +32,22 @@ export default function TransactionForm({ onAdd }: Props) {
       date
     })
 
+    // ✅ reset only on success
     setAmount("")
     setNote("")
     setType("expense")
     setDate(today)
+  } catch (err: any) {
+    console.error("Transaction save failed:", err)
+    alert(
+      err?.message ||
+      "Failed to save transaction. Please check login."
+    )
+  } finally {
     setLoading(false)
   }
+}
+
 
   return (
     <form onSubmit={handleSubmit} className="transaction-form">
@@ -58,7 +69,7 @@ export default function TransactionForm({ onAdd }: Props) {
         <option value="income">Income</option>
       </select>
 
-      {/* Date (PAST ALLOWED, FUTURE BLOCKED) */}
+      {/* Date (past allowed, future blocked) */}
       <input
         type="date"
         value={date}
