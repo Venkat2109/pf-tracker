@@ -17,6 +17,7 @@ import DashboardControls from "../components/DashboardControl"
 import Insights from "../components/Insights"
 import Loading from "../components/Loading"
 import ShortcutHelp from "../components/ShortcutHelp"
+import Mascot from "../components/Mascot"   // ✅ NEW
 
 import { exportToCSV } from "../utils/exportCSV"
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
@@ -74,7 +75,7 @@ export default function Dashboard() {
 
   const balance = income - expense
 
-  // ➕ ADD TRANSACTION (✅ FIXED: date preserved)
+  // ➕ ADD TRANSACTION
   async function handleAdd(tx: {
     amount: number
     type: "income" | "expense"
@@ -204,6 +205,14 @@ export default function Dashboard() {
       {showHelp && (
         <ShortcutHelp onClose={() => setShowHelp(false)} />
       )}
+
+      {/* 🤖 MASCOT (FLOATING, GLOBAL) */}
+      <Mascot
+        transactions={filteredTransactions}
+        income={income}
+        expense={expense}
+        balance={balance}
+      />
     </div>
   )
 }

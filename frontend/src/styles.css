@@ -329,3 +329,16 @@ tr:hover {
 canvas {
   max-height: 320px;
 }
+
+.mascot-eye {
+  width: 8px;
+  height: 8px;
+  background: var(--text);
+  border-radius: 50%;
+  animation: blink 4s infinite;
+}
+
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
