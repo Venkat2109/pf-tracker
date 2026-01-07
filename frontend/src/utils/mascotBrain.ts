@@ -7,27 +7,47 @@ type MascotContext = {
   balance: number
 }
 
-export function getMascotMessage(ctx: MascotContext): string {
-  const { transactions, income, expense, balance } = ctx
+const idleMessages = [
+  "I'm keeping an eye on your money 👀",
+  "Your wallet and I are friends 🤖",
+  "Money moves, I observe 📊",
+  "Tap me if you want insights!"
+]
 
+export function getMascotMessage({
+  transactions,
+  income,
+  expense,
+  balance
+}: MascotContext): string {
+  // 🌱 First-time user
   if (transactions.length === 0) {
-    return "🤖 Let's start tracking! Add your first transaction."
+    return "Start by adding your first transaction ✨"
   }
 
-  const today = new Date().toISOString().split("T")[0]
-  const hasToday = transactions.some(t => t.date === today)
-
-  if (!hasToday) {
-    return "🤖 No entries today. Still tracking mentally? 👀"
+  // 💰 No expenses yet
+  if (expense === 0) {
+    return "No expenses yet — impressive control 😎"
   }
 
+  // ⚠️ Overspending
   if (expense > income) {
-    return "⚠️ Expenses are higher than income this month. Stay alert!"
+    return "Careful! Expenses are higher than income ⚠️"
   }
 
-  if (balance > 0 && income > 0) {
-    return "✅ Nice! You're maintaining a positive balance 💰"
+  // 💸 Low balance warning
+  if (balance < income * 0.2) {
+    return "Your balance is running low 👀"
   }
 
-  return "🤖 I'm watching your finances. You're doing okay!"
+  // 📅 Many transactions today
+  const today = new Date().toISOString().split("T")[0]
+  const todayTx = transactions.filter(t => t.date === today)
+
+  if (todayTx.length >= 5) {
+    return "Busy day! Lots of transactions today 📆"
+  }
+
+  // 🧘 Default idle
+  return idleMessages[Math.floor(Math.random() * idleMessages.length)]
 }

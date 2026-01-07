@@ -32,6 +32,7 @@ export default function TransactionTable({
     await updateTransaction(updated.id, {
       amount: updated.amount,
       type: updated.type,
+      category: updated.category,
       date: updated.date,
       note: updated.note
     })
@@ -46,6 +47,7 @@ export default function TransactionTable({
         <thead>
           <tr>
             <th>Date</th>
+            <th>Category</th>
             <th>Type</th>
             <th>Amount</th>
             <th>Note</th>
@@ -57,6 +59,7 @@ export default function TransactionTable({
           {transactions.map(t => (
             <tr key={t.id}>
               <td>{t.date}</td>
+              <td>{t.category || "Others"}</td>
 
               <td
                 className={t.type === "income" ? "income" : "expense"}
