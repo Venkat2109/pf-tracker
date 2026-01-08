@@ -1,3 +1,5 @@
+// src/constants/categories.ts
+
 export const EXPENSE_CATEGORIES = [
   "Food",
   "Transport",

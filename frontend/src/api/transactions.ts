@@ -23,9 +23,7 @@ export async function getTransactions(): Promise<Transaction[]> {
     throw new Error("UNAUTHORIZED")
   }
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch transactions")
-  }
+  if (!res.ok) throw new Error("Failed to fetch transactions")
 
   return res.json()
 }
@@ -89,9 +87,7 @@ export async function updateTransaction(
     throw new Error("UNAUTHORIZED")
   }
 
-  if (!res.ok) {
-    throw new Error("Failed to update transaction")
-  }
+  if (!res.ok) throw new Error("Failed to update transaction")
 
   return res.json()
 }
@@ -106,7 +102,5 @@ export async function deleteTransaction(id: number): Promise<void> {
     throw new Error("UNAUTHORIZED")
   }
 
-  if (!res.ok) {
-    throw new Error("Failed to delete transaction")
-  }
+  if (!res.ok) throw new Error("Failed to delete transaction")
 }

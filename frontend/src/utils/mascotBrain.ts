@@ -1,3 +1,4 @@
+// src/utils/mascotBrain.ts
 import { Transaction } from "../api/transactions"
 
 type MascotContext = {
@@ -7,47 +8,101 @@ type MascotContext = {
   balance: number
 }
 
+type MascotMood = "happy" | "warning" | "neutral"
+
 const idleMessages = [
-  "I'm keeping an eye on your money 👀",
-  "Your wallet and I are friends 🤖",
-  "Money moves, I observe 📊",
-  "Tap me if you want insights!"
+  "I'm watching your expenses quietly 👀",
+  "Tap me anytime for insights 🤖",
+  "Your money story is unfolding 📊",
+  "Budgets love consistency 💙"
 ]
 
-export function getMascotMessage({
-  transactions,
-  income,
-  expense,
-  balance
-}: MascotContext): string {
+function getTopExpenseCategory(
+  transactions: Transaction[]
+): string | null {
+  const map: Record<string, number> = {}
+
+  transactions
+    .filter(t => t.type === "expense")
+    .forEach(t => {
+      const cat = t.category || "Others"
+      map[cat] = (map[cat] || 0) + t.amount
+    })
+
+  const entries = Object.entries(map)
+  if (entries.length === 0) return null
+
+  return entries.sort((a, b) => b[1] - a[1])[0][0]
+}
+
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return "Good morning ☀️"
+  if (hour < 18) return "Good afternoon 🌤️"
+  return "Good evening 🌙"
+}
+
+export function getMascotMessage(
+  ctx: MascotContext
+): { text: string; mood: MascotMood } {
+  const { transactions, income, expense, balance } = ctx
+
   // 🌱 First-time user
   if (transactions.length === 0) {
-    return "Start by adding your first transaction ✨"
+    return {
+      text: "Let's start tracking! Add your first transaction ✨",
+      mood: "happy"
+    }
   }
 
-  // 💰 No expenses yet
-  if (expense === 0) {
-    return "No expenses yet — impressive control 😎"
+  // 🧾 Busy day
+  const today = new Date().toISOString().split("T")[0]
+  const todayCount = transactions.filter(t => t.date === today).length
+  if (todayCount >= 5) {
+    return {
+      text: "Busy money day! Lots of activity today 📆",
+      mood: "neutral"
+    }
   }
 
   // ⚠️ Overspending
   if (expense > income) {
-    return "Careful! Expenses are higher than income ⚠️"
+    return {
+      text: "Careful! You're spending more than you earn ⚠️",
+      mood: "warning"
+    }
   }
 
-  // 💸 Low balance warning
+  // 💸 Low balance
   if (balance < income * 0.2) {
-    return "Your balance is running low 👀"
+    return {
+      text: "Your balance is getting low 👀 Might want to slow down.",
+      mood: "warning"
+    }
   }
 
-  // 📅 Many transactions today
-  const today = new Date().toISOString().split("T")[0]
-  const todayTx = transactions.filter(t => t.date === today)
-
-  if (todayTx.length >= 5) {
-    return "Busy day! Lots of transactions today 📆"
+  // 🧠 Category insight
+  const topCategory = getTopExpenseCategory(transactions)
+  if (topCategory && topCategory !== "Savings") {
+    return {
+      text: `Most of your spending is on ${topCategory}. Keeping an eye helps 👁️`,
+      mood: "neutral"
+    }
   }
 
-  // 🧘 Default idle
-  return idleMessages[Math.floor(Math.random() * idleMessages.length)]
+  // 😊 Healthy finances
+  if (balance > income * 0.4) {
+    return {
+      text: "Nice balance! You're managing money well 😄",
+      mood: "happy"
+    }
+  }
+
+  // 🧘 Idle
+  return {
+    text: `${getGreeting()} — ${
+      idleMessages[Math.floor(Math.random() * idleMessages.length)]
+    }`,
+    mood: "neutral"
+  }
 }
