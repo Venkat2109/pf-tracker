@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { motion } from "framer-motion"
 import {
   EXPENSE_CATEGORIES,
   ExpenseCategory
@@ -30,30 +31,32 @@ export default function TransactionForm({ onAdd }: Props) {
     if (!amount) return
 
     setLoading(true)
-
     try {
       await onAdd({
         amount: Number(amount),
         type,
-        category,
+        category: type === "expense" ? category : "Others",
         note,
         date
       })
-
       setAmount("")
       setNote("")
       setCategory("Others")
       setType("expense")
       setDate(today)
-    } catch (err: any) {
-      alert(err?.message || "Failed to save transaction")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="transaction-form">
+    <motion.form
+      onSubmit={handleSubmit}
+      className="transaction-form"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <input
         type="number"
         placeholder="Amount"
@@ -71,18 +74,18 @@ export default function TransactionForm({ onAdd }: Props) {
       </select>
 
       {type === "expense" && (
-        <select
+        <motion.select
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
           value={category}
           onChange={e =>
             setCategory(e.target.value as ExpenseCategory)
           }
         >
           {EXPENSE_CATEGORIES.map(c => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+            <option key={c} value={c}>{c}</option>
           ))}
-        </select>
+        </motion.select>
       )}
 
       <input
@@ -100,9 +103,13 @@ export default function TransactionForm({ onAdd }: Props) {
         onChange={e => setNote(e.target.value)}
       />
 
-      <button type="submit" disabled={loading}>
+      <motion.button
+        type="submit"
+        disabled={loading}
+        whileTap={{ scale: 0.95 }}
+      >
         {loading ? "Saving..." : "Save"}
-      </button>
-    </form>
+      </motion.button>
+    </motion.form>
   )
 }

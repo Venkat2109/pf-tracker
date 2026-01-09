@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { motion } from "framer-motion"
 import AuthLayout from "../components/AuthLayout"
 import { registerUser } from "../api/auth"
 
@@ -15,14 +16,10 @@ export default function Register() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
-
     try {
       await registerUser({ email, username, password })
       setSuccess(true)
-
-      setTimeout(() => {
-        navigate("/login")
-      }, 1500)
+      setTimeout(() => navigate("/login"), 1500)
     } catch {
       setError("User already exists or invalid data")
     }
@@ -33,7 +30,12 @@ export default function Register() {
       title="Create your account ✨"
       subtitle="Start building better money habits"
     >
-      <form onSubmit={handleSubmit} className="button-group">
+      <motion.form
+        onSubmit={handleSubmit}
+        className="button-group"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <input
           placeholder="Email"
           type="email"
@@ -58,7 +60,7 @@ export default function Register() {
 
         {success && (
           <p style={{ color: "var(--income)", fontSize: 14 }}>
-            ✅ Account created! Redirecting to login…
+            ✅ Account created! Redirecting…
           </p>
         )}
 
@@ -68,15 +70,15 @@ export default function Register() {
           </p>
         )}
 
-        <button style={{ width: "100%" }}>
+        <motion.button whileTap={{ scale: 0.96 }}>
           Register
-        </button>
+        </motion.button>
 
         <p className="label" style={{ textAlign: "center" }}>
           Already have an account?{" "}
           <Link to="/login">Login</Link>
         </p>
-      </form>
+      </motion.form>
     </AuthLayout>
   )
 }

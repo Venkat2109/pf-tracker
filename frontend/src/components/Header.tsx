@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   FaHome,
   FaCalendarAlt,
@@ -16,19 +17,16 @@ import { exportToCSV } from "../utils/exportCSV"
 export default function Header() {
   const { theme, toggleTheme, reduceMotion, toggleReduceMotion } =
     useSettings()
-
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  /* 🔹 Welcome text logic */
   const welcomeText = user?.username
     ? `Welcome back, ${user.username} 👋`
     : "Welcome 👋"
 
-  /* 🔹 Close dropdown when clicking outside */
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -38,132 +36,111 @@ export default function Header() {
         setOpen(false)
       }
     }
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
-
-    return () => {
+    if (open) document.addEventListener("mousedown", handleClickOutside)
+    return () =>
       document.removeEventListener("mousedown", handleClickOutside)
-    }
   }, [open])
 
-  /* 🔹 Download CSV */
   async function handleDownloadCSV() {
     const tx = await getTransactions()
     exportToCSV(tx)
     setOpen(false)
   }
 
-  /* 🔐 Logout */
   function handleLogout() {
     logout()
     navigate("/login")
   }
 
   return (
-    <header>
-      {/* LEFT */}
+    <motion.header
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       <h1>{welcomeText}</h1>
 
-      {/* RIGHT */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          position: "relative"
-        }}
-      >
-        <Link to="/" title="Dashboard">
-          <FaHome />
-        </Link>
+      <div style={{ display: "flex", gap: 16, position: "relative" }}>
+        {[{ to: "/", icon: <FaHome /> },
+          { to: "/history", icon: <FaCalendarAlt /> }].map(
+          (item, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link to={item.to}>{item.icon}</Link>
+            </motion.div>
+          )
+        )}
 
-        <Link to="/history" title="History & Calendar">
-          <FaCalendarAlt />
-        </Link>
-
-        <button
+        <motion.button
           className="secondary"
           aria-label="Settings"
+          whileHover={{ rotate: 20 }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => setOpen(o => !o)}
         >
           <FaCog />
-        </button>
+        </motion.button>
 
-        {open && (
-          <div
-            ref={dropdownRef}
-            className="card"
-            style={{
-              position: "absolute",
-              right: 0,
-              top: 44,
-              width: 240,
-              zIndex: 100
-            }}
-          >
-            <div style={{ display: "grid", gap: 14 }}>
-              {/* Theme */}
-              <label className="label" style={{ display: "flex", gap: 10 }}>
-                <input
-                  type="checkbox"
-                  checked={theme === "dark"}
-                  onChange={() => {
-                    toggleTheme()
-                    setOpen(false)
-                  }}
-                />
-                Dark mode
-              </label>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              ref={dropdownRef}
+              className="card"
+              initial={{ opacity: 0, y: -10, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.96 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                position: "absolute",
+                right: 0,
+                top: 44,
+                width: 240,
+                zIndex: 100
+              }}
+            >
+              <div style={{ display: "grid", gap: 14 }}>
+                <label className="label" style={{ display: "flex", gap: 10 }}>
+                  <input
+                    type="checkbox"
+                    checked={theme === "dark"}
+                    onChange={toggleTheme}
+                  />
+                  Dark mode
+                </label>
 
-              {/* Reduce motion */}
-              <label className="label" style={{ display: "flex", gap: 10 }}>
-                <input
-                  type="checkbox"
-                  checked={reduceMotion}
-                  onChange={() => {
-                    toggleReduceMotion()
-                    setOpen(false)
-                  }}
-                />
-                Reduce animations
-              </label>
+                <label className="label" style={{ display: "flex", gap: 10 }}>
+                  <input
+                    type="checkbox"
+                    checked={reduceMotion}
+                    onChange={toggleReduceMotion}
+                  />
+                  Reduce animations
+                </label>
 
-              <hr style={{ borderColor: "var(--border)" }} />
+                <hr style={{ borderColor: "var(--border)" }} />
 
-              {/* CSV Export */}
-              <button
-                className="secondary"
-                onClick={handleDownloadCSV}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8
-                }}
-              >
-                <FaFileDownload />
-                Download CSV
-              </button>
+                <button
+                  className="secondary"
+                  onClick={handleDownloadCSV}
+                >
+                  <FaFileDownload /> Download CSV
+                </button>
 
-              {/* Logout */}
-              <button
-                className="secondary"
-                onClick={handleLogout}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  color: "var(--expense)"
-                }}
-              >
-                <FaSignOutAlt />
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
+                <button
+                  className="secondary"
+                  onClick={handleLogout}
+                  style={{ color: "var(--expense)" }}
+                >
+                  <FaSignOutAlt /> Logout
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </header>
+    </motion.header>
   )
 }
