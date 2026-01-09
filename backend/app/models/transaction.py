@@ -8,7 +8,10 @@ class Transaction(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, index=True)
 
     account_id: int
-    category_id: int
+
+    # ✅ Store category directly as text (frontend-only categories)
+    category: str = Field(default="Others", index=True)
+
     amount: float
     type: str
     date: date

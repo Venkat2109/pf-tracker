@@ -9,7 +9,7 @@ from sqlmodel import SQLModel
 
 class TransactionIn(SQLModel):
     account_id: int
-    category_id: int
+    category: str              # ✅ NEW (matches frontend)
     amount: float
     type: str
     date: date
@@ -31,7 +31,7 @@ class TransactionOut(TransactionIn):
 class UserCreate(SQLModel):
     email: str
     password: str
-    username: Optional[str] = None   # ✅ ADD THIS
+    username: Optional[str] = None
 
 
 class UserLogin(SQLModel):
