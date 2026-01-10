@@ -43,7 +43,6 @@ export async function createTransaction(data: {
     },
     body: JSON.stringify({
       account_id: 1,
-      category_id: 1,
       amount: data.amount,
       type: data.type,
       category: data.category,
