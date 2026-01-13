@@ -9,6 +9,21 @@ export default function Insights({
 }) {
   const insights = generateInsights(transactions)
 
+  if (insights.length === 0) {
+    return (
+      <motion.div
+        className="card section"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h2>Smart Insights 🧠</h2>
+        <p style={{ color: "var(--muted)", marginTop: 12 }}>
+          Add more transactions to unlock insights ✨
+        </p>
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div
       className="card section"

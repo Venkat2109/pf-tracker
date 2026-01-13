@@ -400,3 +400,32 @@ canvas {
     transition: none !important;
   }
 }
+
+/* =========================
+   CATEGORY BADGES
+========================= */
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Category colors */
+.category-badge.Food { background: #ef444420; color: #fecaca; }
+.category-badge.Transport { background: #f9731620; color: #fed7aa; }
+.category-badge.Housing { background: #3b82f620; color: #bfdbfe; }
+.category-badge.Education { background: #8b5cf620; color: #ddd6fe; }
+.category-badge.Entertainment { background: #22c55e20; color: #bbf7d0; }
+.category-badge.Health { background: #06b6d420; color: #bae6fd; }
+.category-badge.Shopping { background: #ec489920; color: #fbcfe8; }
+.category-badge.Travel { background: #14b8a620; color: #99f6e4; }
+.category-badge.Utilities { background: #eab30820; color: #fde68a; }
+.category-badge.Savings { background: #22c55e20; color: #bbf7d0; }
+.category-badge.Others { background: #9ca3af20; color: #e5e7eb; }

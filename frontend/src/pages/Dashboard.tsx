@@ -17,7 +17,7 @@ import DashboardControls from "../components/DashboardControl"
 import Insights from "../components/Insights"
 import Loading from "../components/Loading"
 import ShortcutHelp from "../components/ShortcutHelp"
-import Mascot from "../components/Mascot"   // ✅ NEW
+import Mascot from "../components/Mascot"
 
 import { exportToCSV } from "../utils/exportCSV"
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
@@ -26,13 +26,8 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
 
-  // 📅 Month navigation
   const [currentMonth, setCurrentMonth] = useState(new Date())
-
-  // ⌨️ Shortcut help modal
   const [showHelp, setShowHelp] = useState(false)
-
-  // 🎯 Focus add transaction
   const addRef = useRef<HTMLDivElement>(null)
 
   async function loadTransactions() {
@@ -46,7 +41,6 @@ export default function Dashboard() {
     loadTransactions()
   }, [])
 
-  // ⬅️➡️ Month navigation
   function prevMonth() {
     setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() - 1))
   }
@@ -55,7 +49,6 @@ export default function Dashboard() {
     setCurrentMonth(d => new Date(d.getFullYear(), d.getMonth() + 1))
   }
 
-  // 📌 Filter transactions by selected month
   const filteredTransactions = transactions.filter(t => {
     const d = new Date(t.date)
     return (
@@ -64,7 +57,6 @@ export default function Dashboard() {
     )
   })
 
-  // 💰 Calculations
   const income = filteredTransactions
     .filter(t => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0)
@@ -75,10 +67,22 @@ export default function Dashboard() {
 
   const balance = income - expense
 
-  // ➕ ADD TRANSACTION
+  // 🏷️ TOP SPENDING CATEGORIES
+  const topCategories = Object.entries(
+    filteredTransactions
+      .filter(t => t.type === "expense")
+      .reduce((acc: Record<string, number>, t) => {
+        acc[t.category] = (acc[t.category] || 0) + t.amount
+        return acc
+      }, {})
+  )
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+
   async function handleAdd(tx: {
     amount: number
     type: "income" | "expense"
+    category: string
     note?: string
     date: string
   }) {
@@ -86,7 +90,6 @@ export default function Dashboard() {
     await loadTransactions()
   }
 
-  // ⌨️ KEYBOARD SHORTCUTS
   useKeyboardShortcuts({
     onPrevMonth: prevMonth,
     onNextMonth: nextMonth,
@@ -99,35 +102,31 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      {/* HEADER */}
       <Header />
 
-      {/* MONTH NAVIGATION */}
       <DashboardControls
         month={currentMonth}
         onPrev={prevMonth}
         onNext={nextMonth}
       />
 
-      {/* SUMMARY CARDS */}
+      {/* SUMMARY */}
       <motion.div
         className="stats"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
       >
         {[
           { label: "Income", value: income, className: "income" },
           { label: "Expense", value: expense, className: "expense" },
           { label: "Balance", value: balance, className: "balance" }
-        ].map((item, index) => (
+        ].map((item, idx) => (
           <motion.div
             key={item.label}
             className={`card ${item.className}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.15 }}
-            whileHover={{ scale: 1.05 }}
+            transition={{ delay: idx * 0.15 }}
           >
             <p>{item.label}</p>
             <h2>₹{item.value}</h2>
@@ -141,12 +140,33 @@ export default function Dashboard() {
           className="card section"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
         >
           <h2>Add Transaction</h2>
           <TransactionForm onAdd={handleAdd} />
         </motion.div>
       </div>
+
+      {/* TOP CATEGORIES */}
+      {topCategories.length > 0 && (
+        <motion.div
+          className="card section"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h2>Top Spending Categories</h2>
+
+          <div className="button-group">
+            {topCategories.map(([cat, amt]) => (
+              <span
+                key={cat}
+                className={`category-badge ${cat}`}
+              >
+                {cat} — ₹{amt}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* CHARTS */}
       <div
@@ -161,7 +181,6 @@ export default function Dashboard() {
         <ExpenseChart transactions={filteredTransactions} />
       </div>
 
-      {/* 🔥 EXPENSE HEATMAP */}
       <div className="section">
         <ExpenseHeatmap
           transactions={filteredTransactions}
@@ -169,15 +188,13 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* 🧠 INSIGHTS */}
       <Insights transactions={filteredTransactions} />
 
-      {/* ✅ TRANSACTIONS TABLE */}
+      {/* TABLE */}
       <motion.div
         className="card section"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
       >
         <h2>
           Transactions –{" "}
@@ -201,12 +218,10 @@ export default function Dashboard() {
         )}
       </motion.div>
 
-      {/* ⌨️ SHORTCUT HELP */}
       {showHelp && (
         <ShortcutHelp onClose={() => setShowHelp(false)} />
       )}
 
-      {/* 🤖 MASCOT (FLOATING, GLOBAL) */}
       <Mascot
         transactions={filteredTransactions}
         income={income}
