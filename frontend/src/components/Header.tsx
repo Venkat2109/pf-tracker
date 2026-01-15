@@ -53,94 +53,104 @@ export default function Header() {
   }
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <h1>{welcomeText}</h1>
-
-      <div style={{ display: "flex", gap: 16, position: "relative" }}>
-        {[{ to: "/", icon: <FaHome /> },
-          { to: "/history", icon: <FaCalendarAlt /> }].map(
-          (item, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link to={item.to}>{item.icon}</Link>
-            </motion.div>
-          )
-        )}
-
-        <motion.button
-          className="secondary"
-          aria-label="Settings"
-          whileHover={{ rotate: 20 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setOpen(o => !o)}
+    <div className="page-grid">
+      <div className="page-column">
+        <motion.header
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
         >
-          <FaCog />
-        </motion.button>
+          <h1>{welcomeText}</h1>
 
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              ref={dropdownRef}
-              className="card"
-              initial={{ opacity: 0, y: -10, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.96 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: "absolute",
-                right: 0,
-                top: 44,
-                width: 240,
-                zIndex: 100
-              }}
+          <div style={{ display: "flex", gap: 16, position: "relative" }}>
+            {[{ to: "/", icon: <FaHome /> },
+              { to: "/history", icon: <FaCalendarAlt /> }].map(
+              (item, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link to={item.to}>{item.icon}</Link>
+                </motion.div>
+              )
+            )}
+
+            <motion.button
+              className="secondary"
+              aria-label="Settings"
+              whileHover={{ rotate: 20 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setOpen(o => !o)}
             >
-              <div style={{ display: "grid", gap: 14 }}>
-                <label className="label" style={{ display: "flex", gap: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={theme === "dark"}
-                    onChange={toggleTheme}
-                  />
-                  Dark mode
-                </label>
+              <FaCog />
+            </motion.button>
 
-                <label className="label" style={{ display: "flex", gap: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={reduceMotion}
-                    onChange={toggleReduceMotion}
-                  />
-                  Reduce animations
-                </label>
-
-                <hr style={{ borderColor: "var(--border)" }} />
-
-                <button
-                  className="secondary"
-                  onClick={handleDownloadCSV}
+            <AnimatePresence>
+              {open && (
+                <motion.div
+                  ref={dropdownRef}
+                  className="card"
+                  initial={{ opacity: 0, y: -10, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.2 }}
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 44,
+                    width: 240,
+                    zIndex: 100
+                  }}
                 >
-                  <FaFileDownload /> Download CSV
-                </button>
+                  <div style={{ display: "grid", gap: 14 }}>
+                    <label
+                      className="label"
+                      style={{ display: "flex", gap: 10 }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={theme === "dark"}
+                        onChange={toggleTheme}
+                      />
+                      Dark mode
+                    </label>
 
-                <button
-                  className="secondary"
-                  onClick={handleLogout}
-                  style={{ color: "var(--expense)" }}
-                >
-                  <FaSignOutAlt /> Logout
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                    <label
+                      className="label"
+                      style={{ display: "flex", gap: 10 }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={reduceMotion}
+                        onChange={toggleReduceMotion}
+                      />
+                      Reduce animations
+                    </label>
+
+                    <hr style={{ borderColor: "var(--border)" }} />
+
+                    <button
+                      className="secondary"
+                      onClick={handleDownloadCSV}
+                    >
+                      <FaFileDownload /> Download CSV
+                    </button>
+
+                    <button
+                      className="secondary"
+                      onClick={handleLogout}
+                      style={{ color: "var(--expense)" }}
+                    >
+                      <FaSignOutAlt /> Logout
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.header>
       </div>
-    </motion.header>
+    </div>
   )
 }

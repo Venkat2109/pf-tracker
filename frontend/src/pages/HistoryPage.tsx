@@ -70,179 +70,183 @@ export default function HistoryPage() {
 
   return (
     <div className="container">
-      <Header />
+      <div className="page-grid">
+        <Header />
 
-      <h2>History & Patterns 📅</h2>
-      <p className="label">
-        Review how your spending evolved over time
-      </p>
+        <div className="page-column">
+          <h2>History & Patterns 📅</h2>
+          <p className="label">
+            Review how your spending evolved over time
+          </p>
 
-      {/* 🔀 VIEW TOGGLE */}
-      <div className="button-group" style={{ marginTop: 12 }}>
-        <button
-          className={view === "date" ? "" : "secondary"}
-          onClick={() => setView("date")}
-        >
-          By Date
-        </button>
+          {/* 🔀 VIEW TOGGLE */}
+          <div className="button-group" style={{ marginTop: 12 }}>
+            <button
+              className={view === "date" ? "" : "secondary"}
+              onClick={() => setView("date")}
+            >
+              By Date
+            </button>
 
-        <button
-          className={view === "category" ? "" : "secondary"}
-          onClick={() => setView("category")}
-        >
-          By Category
-        </button>
-      </div>
+            <button
+              className={view === "category" ? "" : "secondary"}
+              onClick={() => setView("category")}
+            >
+              By Category
+            </button>
+          </div>
 
-      {/* ⏳ LOADING / EMPTY */}
-      {loading ? (
-        <p style={{ marginTop: 32 }}>Loading history…</p>
-      ) : transactions.length === 0 ? (
-        <p style={{ marginTop: 32, color: "var(--muted)" }}>
-          No transactions yet. Your history will appear here.
-        </p>
-      ) : (
-        <div className="section">
-          {/* =========================
-              📅 BY DATE VIEW (ORIGINAL)
-          ========================= */}
-          {view === "date" &&
-            groupedByDate.map(({ date, transactions, total }) => (
-              <motion.div
-                key={date}
-                className="card"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                style={{ marginBottom: 24 }}
-              >
-                {/* DATE HEADER */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: 12
-                  }}
-                >
-                  <strong>{date}</strong>
-
-                  {total > 0 && (
-                    <span
-                      style={{
-                        color: "var(--expense)",
-                        fontWeight: 600
-                      }}
-                    >
-                      ₹{total} spent
-                    </span>
-                  )}
-                </div>
-
-                {/* TRANSACTIONS */}
-                <ul style={{ paddingLeft: 18 }}>
-                  {transactions.map(tx => (
-                    <li
-                      key={tx.id}
-                      style={{
-                        marginBottom: 8,
-                        display: "flex",
-                        justifyContent: "space-between"
-                      }}
-                    >
-                      <span>
-                        <strong>{tx.category}</strong>
-                        {tx.note && (
-                          <span
-                            style={{
-                              color: "var(--muted)",
-                              marginLeft: 6
-                            }}
-                          >
-                            — {tx.note}
-                          </span>
-                        )}
-                      </span>
-
-                      <span
-                        style={{
-                          color:
-                            tx.type === "income"
-                              ? "var(--income)"
-                              : "var(--expense)",
-                          fontWeight: 600
-                        }}
-                      >
-                        {tx.type === "income" ? "+" : "-"}₹{tx.amount}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-
-          {/* =========================
-              🏷️ BY CATEGORY VIEW (NEW)
-          ========================= */}
-          {view === "category" &&
-            groupedByCategory.map(
-              ({ category, transactions, total }) => (
-                <motion.div
-                  key={category}
-                  className="card"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ marginBottom: 24 }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 12
-                    }}
+          {/* ⏳ LOADING / EMPTY */}
+          {loading ? (
+            <p style={{ marginTop: 32 }}>Loading history…</p>
+          ) : transactions.length === 0 ? (
+            <p style={{ marginTop: 32, color: "var(--muted)" }}>
+              No transactions yet. Your history will appear here.
+            </p>
+          ) : (
+            <div className="section">
+              {/* =========================
+                  📅 BY DATE VIEW (ORIGINAL)
+              ========================= */}
+              {view === "date" &&
+                groupedByDate.map(({ date, transactions, total }) => (
+                  <motion.div
+                    key={date}
+                    className="card"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ marginBottom: 24 }}
                   >
-                    <strong>{category}</strong>
-                    <span
+                    {/* DATE HEADER */}
+                    <div
                       style={{
-                        color: "var(--expense)",
-                        fontWeight: 600
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: 12
                       }}
                     >
-                      ₹{total} total
-                    </span>
-                  </div>
+                      <strong>{date}</strong>
 
-                  <ul style={{ paddingLeft: 18 }}>
-                    {transactions.map(tx => (
-                      <li
-                        key={tx.id}
-                        style={{
-                          marginBottom: 6,
-                          display: "flex",
-                          justifyContent: "space-between"
-                        }}
-                      >
-                        <span style={{ color: "var(--muted)" }}>
-                          {tx.date}
-                          {tx.note && ` — ${tx.note}`}
-                        </span>
-
+                      {total > 0 && (
                         <span
                           style={{
                             color: "var(--expense)",
                             fontWeight: 600
                           }}
                         >
-                          ₹{tx.amount}
+                          ₹{total} spent
                         </span>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )
-            )}
+                      )}
+                    </div>
+
+                    {/* TRANSACTIONS */}
+                    <ul style={{ paddingLeft: 18 }}>
+                      {transactions.map(tx => (
+                        <li
+                          key={tx.id}
+                          style={{
+                            marginBottom: 8,
+                            display: "flex",
+                            justifyContent: "space-between"
+                          }}
+                        >
+                          <span>
+                            <strong>{tx.category}</strong>
+                            {tx.note && (
+                              <span
+                                style={{
+                                  color: "var(--muted)",
+                                  marginLeft: 6
+                                }}
+                              >
+                                — {tx.note}
+                              </span>
+                            )}
+                          </span>
+
+                          <span
+                            style={{
+                              color:
+                                tx.type === "income"
+                                  ? "var(--income)"
+                                  : "var(--expense)",
+                              fontWeight: 600
+                            }}
+                          >
+                            {tx.type === "income" ? "+" : "-"}₹{tx.amount}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
+
+              {/* =========================
+                  🏷️ BY CATEGORY VIEW (NEW)
+              ========================= */}
+              {view === "category" &&
+                groupedByCategory.map(
+                  ({ category, transactions, total }) => (
+                    <motion.div
+                      key={category}
+                      className="card"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ marginBottom: 24 }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: 12
+                        }}
+                      >
+                        <strong>{category}</strong>
+                        <span
+                          style={{
+                            color: "var(--expense)",
+                            fontWeight: 600
+                          }}
+                        >
+                          ₹{total} total
+                        </span>
+                      </div>
+
+                      <ul style={{ paddingLeft: 18 }}>
+                        {transactions.map(tx => (
+                          <li
+                            key={tx.id}
+                            style={{
+                              marginBottom: 6,
+                              display: "flex",
+                              justifyContent: "space-between"
+                            }}
+                          >
+                            <span style={{ color: "var(--muted)" }}>
+                              {tx.date}
+                              {tx.note && ` — ${tx.note}`}
+                            </span>
+
+                            <span
+                              style={{
+                                color: "var(--expense)",
+                                fontWeight: 600
+                              }}
+                            >
+                              ₹{tx.amount}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  )
+                )}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* 🤖 HISTORY MASCOT INSIGHTS */}
       <Mascot transactions={transactions} mode="history" />

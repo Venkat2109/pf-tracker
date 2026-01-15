@@ -105,3 +105,40 @@ export function getHistoryMascotMessage(
     mood: "happy"
   }
 }
+
+export function getMascotMessages(
+  ctx: MascotContext
+): { text: string; mood: MascotMood }[] {
+  const messages: { text: string; mood: MascotMood }[] = []
+
+  if (ctx.transactions.length === 0) {
+    messages.push({
+      text: "Let's start tracking! Add your first transaction ✨",
+      mood: "happy"
+    })
+  }
+
+  if (ctx.expense > ctx.income) {
+    messages.push({
+      text: "Careful! You're spending more than you earn ⚠️",
+      mood: "warning"
+    })
+  }
+
+  const topCategory = getTopExpenseCategory(ctx.transactions)
+  if (topCategory) {
+    messages.push({
+      text: `Most of your spending is on ${topCategory}.`,
+      mood: "neutral"
+    })
+  }
+
+  messages.push(
+    ...idleMessages.map(m => ({
+      text: m,
+      mood: "neutral" as const
+    }))
+  )
+
+  return messages
+}

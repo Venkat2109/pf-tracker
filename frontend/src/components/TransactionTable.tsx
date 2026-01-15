@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, Fragment } from "react"
 import {
   Transaction,
   deleteTransaction,
@@ -127,7 +127,7 @@ export default function TransactionTable({
               )
 
               return (
-                <fragment key={date}>
+                <Fragment key={date}>
                   {/* 📅 DATE HEADER ROW */}
                   <tr>
                     <td
@@ -219,7 +219,7 @@ export default function TransactionTable({
                       </td>
                     </tr>
                   ))}
-                </fragment>
+                </Fragment>
               )
             }
           )}

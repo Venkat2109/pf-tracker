@@ -16,14 +16,12 @@ import PageTransition from "./components/PageTransition"
 import { AuthProvider } from "./context/AuthContext"
 import { SettingsProvider } from "./context/SettingsContext"
 
-/* 🔁 Animated routes wrapper */
 function AnimatedRoutes() {
   const location = useLocation()
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* 🔓 Public routes */}
         <Route
           path="/login"
           element={
@@ -42,7 +40,6 @@ function AnimatedRoutes() {
           }
         />
 
-        {/* 🔒 Protected routes */}
         <Route
           path="/"
           element={
@@ -74,7 +71,11 @@ export default function App() {
     <AuthProvider>
       <SettingsProvider>
         <BrowserRouter>
-          <AnimatedRoutes />
+          <div className="app-grid">
+            <main className="app-shell">
+              <AnimatedRoutes />
+            </main>
+          </div>
         </BrowserRouter>
       </SettingsProvider>
     </AuthProvider>

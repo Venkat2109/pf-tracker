@@ -1,8 +1,8 @@
 // src/components/Mascot.tsx
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { Transaction } from "../api/transactions"
-import { getMascotMessage } from "../utils/mascotBrain"
+import { getMascotMessages } from "../utils/mascotBrain"
 
 interface MascotProps {
   transactions: Transaction[]
@@ -22,28 +22,41 @@ export default function Mascot({
   mode = "dashboard"
 }: MascotProps) {
   const [open, setOpen] = useState(false)
+  const [index, setIndex] = useState(0)
 
-  const { text, mood } = getMascotMessage({
-    transactions,
-    income,
-    expense,
-    balance
-  })
+  /* 🧠 Generate all valid messages once */
+  const messages = useMemo(
+    () =>
+      getMascotMessages({
+        transactions,
+        income,
+        expense,
+        balance
+      }),
+    [transactions, income, expense, balance]
+  )
+
+  const current = messages[index % messages.length]
 
   /* 🎨 Mood-aware visuals */
   const eyeColor =
-    mood === "happy"
+    current.mood === "happy"
       ? "#22c55e"
-      : mood === "warning"
+      : current.mood === "warning"
       ? "#ef4444"
       : "#60a5fa"
 
   const bodyGlow =
-    mood === "warning"
-      ? "0 0 12px rgba(239,68,68,0.6)"
-      : mood === "happy"
-      ? "0 0 12px rgba(34,197,94,0.6)"
-      : "0 0 8px rgba(96,165,250,0.4)"
+    current.mood === "warning"
+      ? "0 0 14px rgba(239,68,68,0.6)"
+      : current.mood === "happy"
+      ? "0 0 14px rgba(34,197,94,0.6)"
+      : "0 0 10px rgba(96,165,250,0.45)"
+
+  function handleClick() {
+    setOpen(true)
+    setIndex(i => i + 1) // 🔁 rotate message
+  }
 
   return (
     <motion.div
@@ -61,6 +74,7 @@ export default function Mascot({
       {open && (
         <motion.div
           className="card"
+          key={index} // forces animation per message
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -78,29 +92,29 @@ export default function Mascot({
                 marginBottom: 6
               }}
             >
-              📅 Looking at your history
+              📅 Reviewing your past spending
             </div>
           )}
 
-          {text}
+          {current.text}
         </motion.div>
       )}
 
       {/* 🤖 ROBOT */}
       <motion.div
-        onClick={() => setOpen(o => !o)}
+        onClick={handleClick}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
         animate={{
           y: [0, -6, 0],
           rotate:
-            mood === "warning"
+            current.mood === "warning"
               ? [0, -2, 2, 0]
               : 0
         }}
         transition={{
           repeat: Infinity,
-          duration: mood === "warning" ? 1.6 : 2
+          duration: current.mood === "warning" ? 1.6 : 2
         }}
         style={{
           width: 72,
@@ -127,7 +141,7 @@ export default function Mascot({
           {[0, 1].map(i => (
             <motion.div
               key={i}
-              animate={{ scaleY: [1, 0.2, 1] }}
+              animate={{ scaleY: [1, 0.15, 1] }}
               transition={{ repeat: Infinity, duration: 4 }}
               style={{
                 width: 8,
@@ -141,9 +155,7 @@ export default function Mascot({
 
         {/* BODY */}
         <motion.div
-          animate={{
-            boxShadow: bodyGlow
-          }}
+          animate={{ boxShadow: bodyGlow }}
           transition={{ duration: 0.4 }}
           style={{
             width: 40,
