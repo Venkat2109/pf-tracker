@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import AuthLayout from "../components/AuthLayout"
+import PageLayout from "../components/PageLayout"
 import { loginUser } from "../api/auth"
 import { useAuth } from "../context/AuthContext"
 
@@ -30,51 +31,60 @@ export default function Login() {
   }
 
   return (
-    <AuthLayout title="Welcome back 👋" subtitle="Track smarter. Save better.">
-      <motion.form
-        onSubmit={handleSubmit}
-        className="button-group"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+    <PageLayout variant="auth">
+      <AuthLayout
+        title="Welcome back 👋"
+        subtitle="Track smarter. Save better."
       >
-        <input
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-
-        {error && (
-          <motion.p
-            style={{ color: "var(--expense)", fontSize: 14 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {error}
-          </motion.p>
-        )}
-
-        <motion.button
-          style={{ width: "100%" }}
-          disabled={loading}
-          whileTap={{ scale: 0.96 }}
+        <motion.form
+          onSubmit={handleSubmit}
+          className="button-group"
+          style={{
+            maxWidth: 420,
+            margin: "0 auto"
+          }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          {loading ? "Logging in..." : "Login"}
-        </motion.button>
+          <input
+            placeholder="Email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
 
-        <p className="label" style={{ textAlign: "center" }}>
-          New here? <Link to="/register">Create an account</Link>
-        </p>
-      </motion.form>
-    </AuthLayout>
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+
+          {error && (
+            <motion.p
+              style={{ color: "var(--expense)", fontSize: 14 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {error}
+            </motion.p>
+          )}
+
+          <motion.button
+            style={{ width: "100%" }}
+            disabled={loading}
+            whileTap={{ scale: 0.96 }}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </motion.button>
+
+          <p className="label" style={{ textAlign: "center" }}>
+            New here? <Link to="/register">Create an account</Link>
+          </p>
+        </motion.form>
+      </AuthLayout>
+    </PageLayout>
   )
 }

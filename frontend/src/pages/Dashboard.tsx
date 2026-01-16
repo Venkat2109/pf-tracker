@@ -18,6 +18,7 @@ import Insights from "../components/Insights"
 import Loading from "../components/Loading"
 import ShortcutHelp from "../components/ShortcutHelp"
 import Mascot from "../components/Mascot"
+import PageLayout from "../components/PageLayout"
 
 import { exportToCSV } from "../utils/exportCSV"
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts"
@@ -101,7 +102,7 @@ export default function Dashboard() {
   })
 
   return (
-    <div className="app-content">
+    <PageLayout>
       <Header />
 
       <DashboardControls
@@ -228,6 +229,6 @@ export default function Dashboard() {
         expense={expense}
         balance={balance}
       />
-    </div>
+    </PageLayout>
   )
 }

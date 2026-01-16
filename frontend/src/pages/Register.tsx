@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import AuthLayout from "../components/AuthLayout"
+import PageLayout from "../components/PageLayout"
 import { registerUser } from "../api/auth"
 
 export default function Register() {
@@ -26,59 +27,68 @@ export default function Register() {
   }
 
   return (
-    <AuthLayout
-      title="Create your account ✨"
-      subtitle="Start building better money habits"
-    >
-      <motion.form
-        onSubmit={handleSubmit}
-        className="button-group"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+    <PageLayout variant="auth">
+      <AuthLayout
+        title="Create your account ✨"
+        subtitle="Start building better money habits"
       >
-        <input
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
+        <motion.form
+          onSubmit={handleSubmit}
+          className="button-group"
+          style={{
+            maxWidth: 420,
+            margin: "0 auto"
+          }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <input
+            placeholder="Email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
 
-        <input
-          placeholder="Username (display name)"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-        />
+          <input
+            placeholder="Username (display name)"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+          />
 
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
+          <input
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
 
-        {success && (
-          <p style={{ color: "var(--income)", fontSize: 14 }}>
-            ✅ Account created! Redirecting…
+          {success && (
+            <p style={{ color: "var(--income)", fontSize: 14 }}>
+              ✅ Account created! Redirecting…
+            </p>
+          )}
+
+          {error && (
+            <p style={{ color: "var(--expense)", fontSize: 14 }}>
+              {error}
+            </p>
+          )}
+
+          <motion.button
+            style={{ width: "100%" }}
+            whileTap={{ scale: 0.96 }}
+          >
+            Register
+          </motion.button>
+
+          <p className="label" style={{ textAlign: "center" }}>
+            Already have an account?{" "}
+            <Link to="/login">Login</Link>
           </p>
-        )}
-
-        {error && (
-          <p style={{ color: "var(--expense)", fontSize: 14 }}>
-            {error}
-          </p>
-        )}
-
-        <motion.button whileTap={{ scale: 0.96 }}>
-          Register
-        </motion.button>
-
-        <p className="label" style={{ textAlign: "center" }}>
-          Already have an account?{" "}
-          <Link to="/login">Login</Link>
-        </p>
-      </motion.form>
-    </AuthLayout>
+        </motion.form>
+      </AuthLayout>
+    </PageLayout>
   )
 }
