@@ -9,8 +9,6 @@ interface MascotProps {
   income?: number
   expense?: number
   balance?: number
-
-  /** 🆕 Context */
   mode?: "dashboard" | "history"
 }
 
@@ -24,21 +22,29 @@ export default function Mascot({
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(0)
 
-  /* 🧠 Generate all valid messages once */
-  const messages = useMemo(
-    () =>
-      getMascotMessages({
-        transactions,
-        income,
-        expense,
-        balance
-      }),
-    [transactions, income, expense, balance]
-  )
+  /* 🧠 Generate + shuffle messages once per context */
+  const messages = useMemo(() => {
+    const base = getMascotMessages({
+      transactions,
+      income,
+      expense,
+      balance
+    })
+
+    // Fisher–Yates shuffle
+    for (let i = base.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[base[i], base[j]] = [base[j], base[i]]
+    }
+
+    return base
+  }, [transactions, income, expense, balance])
+
+  if (messages.length === 0) return null
 
   const current = messages[index % messages.length]
 
-  /* 🎨 Mood-aware visuals */
+  /* 🎨 Mood visuals */
   const eyeColor =
     current.mood === "happy"
       ? "#22c55e"
@@ -55,7 +61,7 @@ export default function Mascot({
 
   function handleClick() {
     setOpen(true)
-    setIndex(i => i + 1) // 🔁 rotate message
+    setIndex(Math.floor(Math.random() * messages.length))
   }
 
   return (
@@ -70,11 +76,11 @@ export default function Mascot({
         zIndex: 999
       }}
     >
-      {/* 💬 SPEECH BUBBLE */}
+      {/* 💬 Speech bubble */}
       {open && (
         <motion.div
           className="card"
-          key={index} // forces animation per message
+          key={index}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -83,7 +89,6 @@ export default function Mascot({
             fontSize: 14
           }}
         >
-          {/* 🧠 Context hint */}
           {mode === "history" && (
             <div
               style={{
@@ -100,7 +105,7 @@ export default function Mascot({
         </motion.div>
       )}
 
-      {/* 🤖 ROBOT */}
+      {/* 🤖 Robot */}
       <motion.div
         onClick={handleClick}
         whileHover={{ scale: 1.06 }}
@@ -124,7 +129,7 @@ export default function Mascot({
           placeItems: "center"
         }}
       >
-        {/* HEAD */}
+        {/* Head */}
         <div
           style={{
             width: 56,
@@ -137,7 +142,6 @@ export default function Mascot({
             alignItems: "center"
           }}
         >
-          {/* 👀 Eyes */}
           {[0, 1].map(i => (
             <motion.div
               key={i}
@@ -153,7 +157,7 @@ export default function Mascot({
           ))}
         </div>
 
-        {/* BODY */}
+        {/* Body */}
         <motion.div
           animate={{ boxShadow: bodyGlow }}
           transition={{ duration: 0.4 }}

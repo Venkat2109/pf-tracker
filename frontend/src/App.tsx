@@ -22,6 +22,7 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* 🔓 AUTH (NO GRID) */}
         <Route
           path="/login"
           element={
@@ -40,13 +41,18 @@ function AnimatedRoutes() {
           }
         />
 
+        {/* 🔒 APP (WITH GRID) */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <PageTransition>
-                <Dashboard />
-              </PageTransition>
+              <div className="app-grid">
+                <main className="app-content">
+                  <PageTransition>
+                    <Dashboard />
+                  </PageTransition>
+                </main>
+              </div>
             </ProtectedRoute>
           }
         />
@@ -55,9 +61,13 @@ function AnimatedRoutes() {
           path="/history"
           element={
             <ProtectedRoute>
-              <PageTransition>
-                <HistoryPage />
-              </PageTransition>
+              <div className="app-grid">
+                <main className="app-content">
+                  <PageTransition>
+                    <HistoryPage />
+                  </PageTransition>
+                </main>
+              </div>
             </ProtectedRoute>
           }
         />
@@ -71,11 +81,7 @@ export default function App() {
     <AuthProvider>
       <SettingsProvider>
         <BrowserRouter>
-          <div className="app-grid">
-            <main className="app-shell">
-              <AnimatedRoutes />
-            </main>
-          </div>
+          <AnimatedRoutes />
         </BrowserRouter>
       </SettingsProvider>
     </AuthProvider>
