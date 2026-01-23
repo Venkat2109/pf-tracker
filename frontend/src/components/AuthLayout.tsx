@@ -1,4 +1,6 @@
+// src/components/AuthLayout.tsx
 import { motion } from "framer-motion"
+import Mascot from "./Mascot"
 
 export default function AuthLayout({
   title,
@@ -17,45 +19,51 @@ export default function AuthLayout({
         display: "grid",
         placeItems: "center",
         background:
-          "radial-gradient(800px 400px at 20% -10%, #6366f1, transparent)"
+          "radial-gradient(900px 450px at 20% -10%, #6366f1, transparent)"
       }}
     >
-      {/* 🌟 BRANDING / HERO AREA */}
+      {/* 🌟 BRAND HERO */}
       <div
         style={{
           position: "absolute",
-          top: "12%",
+          top: "10%",
           textAlign: "center",
           pointerEvents: "none"
         }}
       >
-        <h1
+        {/* 🟣 LOGO */}
+        <div
           style={{
-            fontSize: 42,
-            fontWeight: 800,
-            marginBottom: 8,
-            letterSpacing: -0.5
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 8
           }}
         >
-          Spendly
-        </h1>
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: "var(--primary)",
+              display: "grid",
+              placeItems: "center",
+              fontWeight: 800,
+              color: "white"
+            }}
+          >
+            S
+          </div>
+          <h1 style={{ fontSize: 40, fontWeight: 800 }}>
+            Spendly
+          </h1>
+        </div>
 
-        <p
-          style={{
-            color: "var(--muted)",
-            fontSize: 16,
-            marginBottom: 16
-          }}
-        >
+        <p style={{ color: "var(--muted)", fontSize: 16 }}>
           Track smarter. Save better.
         </p>
 
-        <p
-          style={{
-            color: "var(--muted)",
-            fontSize: 13
-          }}
-        >
+        <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 6 }}>
           Simple • Private • Insightful
         </p>
       </div>
@@ -79,17 +87,17 @@ export default function AuthLayout({
         {children}
       </motion.div>
 
-      {/* 🌫️ SUBTLE FOOTER FILL */}
+      {/* 🤖 AUTH MASCOT CAMEO */}
       <div
         style={{
           position: "absolute",
           bottom: 24,
-          fontSize: 12,
-          color: "var(--muted)",
-          textAlign: "center"
+          right: 24,
+          opacity: 0.65,
+          pointerEvents: "none"
         }}
       >
-        Your friendly money assistant 🤖
+        <Mascot transactions={[]} mode="auth" />
       </div>
     </div>
   )

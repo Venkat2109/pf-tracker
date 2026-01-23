@@ -2,7 +2,10 @@
 import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { Transaction } from "../api/transactions"
-import { getMascotMessages } from "../utils/mascotBrain"
+import {
+  getMascotMessages,
+  MascotMood
+} from "../utils/mascotBrain"
 
 interface MascotProps {
   transactions: Transaction[]
@@ -22,46 +25,40 @@ export default function Mascot({
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(0)
 
-  /* 🧠 Generate + shuffle messages once per context */
-  const messages = useMemo(() => {
-    const base = getMascotMessages({
-      transactions,
-      income,
-      expense,
-      balance
-    })
-
-    // Fisher–Yates shuffle
-    for (let i = base.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[base[i], base[j]] = [base[j], base[i]]
-    }
-
-    return base
-  }, [transactions, income, expense, balance])
+  /* 🧠 Generate messages per context */
+  const messages = useMemo(
+    () =>
+      getMascotMessages({
+        transactions,
+        income,
+        expense,
+        balance
+      }),
+    [transactions, income, expense, balance]
+  )
 
   if (messages.length === 0) return null
 
   const current = messages[index % messages.length]
 
   /* 🎨 Mood visuals */
-  const eyeColor =
-    current.mood === "happy"
-      ? "#22c55e"
-      : current.mood === "warning"
-      ? "#ef4444"
-      : "#60a5fa"
+  function getEyeColor(mood: MascotMood) {
+    if (mood === "happy") return "#22c55e"
+    if (mood === "warning") return "#ef4444"
+    return "#60a5fa"
+  }
 
-  const bodyGlow =
-    current.mood === "warning"
-      ? "0 0 14px rgba(239,68,68,0.6)"
-      : current.mood === "happy"
-      ? "0 0 14px rgba(34,197,94,0.6)"
-      : "0 0 10px rgba(96,165,250,0.45)"
+  function getBodyGlow(mood: MascotMood) {
+    if (mood === "warning")
+      return "0 0 14px rgba(239,68,68,0.6)"
+    if (mood === "happy")
+      return "0 0 14px rgba(34,197,94,0.6)"
+    return "0 0 10px rgba(96,165,250,0.45)"
+  }
 
   function handleClick() {
     setOpen(true)
-    setIndex(Math.floor(Math.random() * messages.length))
+    setIndex(i => (i + 1) % messages.length)
   }
 
   return (
@@ -105,7 +102,7 @@ export default function Mascot({
         </motion.div>
       )}
 
-      {/* 🤖 Robot */}
+      {/* 🤖 Mascot */}
       <motion.div
         onClick={handleClick}
         whileHover={{ scale: 1.06 }}
@@ -151,7 +148,7 @@ export default function Mascot({
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                background: eyeColor
+                background: getEyeColor(current.mood)
               }}
             />
           ))}
@@ -159,7 +156,7 @@ export default function Mascot({
 
         {/* Body */}
         <motion.div
-          animate={{ boxShadow: bodyGlow }}
+          animate={{ boxShadow: getBodyGlow(current.mood) }}
           transition={{ duration: 0.4 }}
           style={{
             width: 40,

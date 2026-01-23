@@ -1,9 +1,9 @@
 // src/utils/mascotBrain.ts
 import { Transaction } from "../api/transactions"
 
-type MascotMood = "happy" | "warning" | "neutral"
+export type MascotMood = "happy" | "warning" | "neutral"
 
-type MascotContext = {
+export type MascotContext = {
   transactions: Transaction[]
   income?: number
   expense?: number
@@ -11,25 +11,28 @@ type MascotContext = {
 }
 
 /* =========================
-   DASHBOARD LOGIC (UNCHANGED)
+   SHARED HELPERS
 ========================= */
 
 const idleMessages = [
   "I'm watching your expenses quietly 👀",
   "Tap me anytime for insights 🤖",
   "Your money story is unfolding 📊",
-  "Budgets love consistency 💙"
+  "Budgets love consistency 💙",
+  "Small habits build big savings 🌱"
 ]
 
 function getTopExpenseCategory(transactions: Transaction[]) {
   const map: Record<string, number> = {}
+
   transactions
     .filter(t => t.type === "expense")
     .forEach(t => {
       map[t.category] = (map[t.category] || 0) + t.amount
     })
 
-  return Object.entries(map).sort((a, b) => b[1] - a[1])[0]?.[0]
+  return Object.entries(map)
+    .sort((a, b) => b[1] - a[1])[0]?.[0]
 }
 
 function getGreeting() {
@@ -39,19 +42,34 @@ function getGreeting() {
   return "Good evening 🌙"
 }
 
-export function getMascotMessage(ctx: MascotContext) {
+/* =========================
+   DASHBOARD — SINGLE MESSAGE
+========================= */
+
+export function getMascotMessage(
+  ctx: MascotContext
+): { text: string; mood: MascotMood } {
   const { transactions, income = 0, expense = 0, balance = 0 } = ctx
 
   if (transactions.length === 0) {
-    return { text: "Add your first transaction ✨", mood: "happy" }
+    return {
+      text: "Add your first transaction ✨",
+      mood: "happy"
+    }
   }
 
   if (expense > income) {
-    return { text: "You're spending more than earning ⚠️", mood: "warning" }
+    return {
+      text: "You're spending more than earning ⚠️",
+      mood: "warning"
+    }
   }
 
   if (balance < income * 0.2) {
-    return { text: "Balance is running low 👀", mood: "warning" }
+    return {
+      text: "Balance is running low 👀",
+      mood: "warning"
+    }
   }
 
   const top = getTopExpenseCategory(transactions)
@@ -71,7 +89,7 @@ export function getMascotMessage(ctx: MascotContext) {
 }
 
 /* =========================
-   HISTORY-SPECIFIC LOGIC 🧠
+   HISTORY — SINGLE MESSAGE
 ========================= */
 
 export function getHistoryMascotMessage(
@@ -84,18 +102,11 @@ export function getHistoryMascotMessage(
     }
   }
 
-  const expenses = transactions.filter(t => t.type === "expense")
-  const byCategory: Record<string, number> = {}
-
-  expenses.forEach(t => {
-    byCategory[t.category] = (byCategory[t.category] || 0) + t.amount
-  })
-
-  const top = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]
+  const top = getTopExpenseCategory(transactions)
 
   if (top) {
     return {
-      text: `Historically, you spend the most on ${top[0]} 💸`,
+      text: `Historically, you spend the most on ${top} 💸`,
       mood: "neutral"
     }
   }
@@ -106,21 +117,21 @@ export function getHistoryMascotMessage(
   }
 }
 
+/* =========================
+   SMART ROTATING MESSAGES
+========================= */
+
 export function getMascotMessages(
   ctx: MascotContext
 ): { text: string; mood: MascotMood }[] {
   const messages: { text: string; mood: MascotMood }[] = []
 
-  if (ctx.transactions.length === 0) {
-    messages.push({
-      text: "Let's start tracking! Add your first transaction ✨",
-      mood: "happy"
-    })
-  }
+  // Always include primary insight first
+  messages.push(getMascotMessage(ctx))
 
-  if (ctx.expense > ctx.income) {
+  if (ctx.expense! > ctx.income!) {
     messages.push({
-      text: "Careful! You're spending more than you earn ⚠️",
+      text: "Try setting a soft spending limit this month 🎯",
       mood: "warning"
     })
   }
@@ -128,16 +139,14 @@ export function getMascotMessages(
   const topCategory = getTopExpenseCategory(ctx.transactions)
   if (topCategory) {
     messages.push({
-      text: `Most of your spending is on ${topCategory}.`,
+      text: `Tip: Review your ${topCategory} spending weekly 📅`,
       mood: "neutral"
     })
   }
 
-  messages.push(
-    ...idleMessages.map(m => ({
-      text: m,
-      mood: "neutral" as const
-    }))
+  // Idle / ambient messages
+  idleMessages.forEach(m =>
+    messages.push({ text: m, mood: "neutral" })
   )
 
   return messages
