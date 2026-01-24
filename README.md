@@ -94,7 +94,7 @@ The project focuses on **clarity, usability, and thoughtful UX** rather than fea
 ```bash
 npm install
 npm run dev
-
+```
 
 🎯 Design Philosophy
 
