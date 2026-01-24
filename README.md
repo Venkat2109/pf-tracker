@@ -77,7 +77,7 @@ The project focuses on **clarity, usability, and thoughtful UX** rather than fea
 
 ### Mascot Insights
 
-![Dashboard](screenshots/mascot-insights.png)
+![Dashboard](screenshots/mascot-insight.png)
 
 
 ---
