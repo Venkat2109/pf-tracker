@@ -1,5 +1,5 @@
-// src/components/PageLayout.tsx
 import { ReactNode } from "react"
+import Footer from "./Footer"
 
 export default function PageLayout({
   children,
@@ -13,11 +13,10 @@ export default function PageLayout({
       {variant === "app" ? (
         <main className="app-content">
           {children}
+          <Footer />
         </main>
       ) : (
-        <>
-          {children}
-        </>
+        children
       )}
     </div>
   )

@@ -1,194 +1,127 @@
-# PF Tracker 🧾💰
+# Spendly 💸
 
-A personal finance tracking backend built with **FastAPI**, **PostgreSQL**, and **Docker**.
+Spendly is a modern personal finance tracker designed to help users understand and improve their spending habits through clean visuals, smart insights, and a friendly optional assistant.
 
-PF Tracker allows users to record income and expenses via a REST API, persist them in a database, and retrieve them for analysis.  
-The project is designed to be **simple to run locally**, **easy to extend**, and **production-style in structure**.
-
-
-# PF Tracker
-
-🚧 Work in Progress 🚧
-
-Personal finance tracker built with:
-- React + TypeScript
-- FastAPI backend
-- Charts, calendar view, dark mode
-- Dockerized setup
-
-This project is actively being developed.
-
-
-> This project is primarily built for personal use, but is fully open-source and can be self-hosted by anyone.
+The project focuses on **clarity, usability, and thoughtful UX** rather than feature overload.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-- Create and list financial transactions
-- Income and expense tracking
-- PostgreSQL persistence
-- RESTful API with OpenAPI documentation
-- Dockerized setup for instant local usage
-- Automated tests using pytest
+### 📊 Dashboard
+- Monthly income, expense, and balance overview
+- Automatically filtered transactions by month
+- Interactive charts and spending heatmap
+- Top spending categories at a glance
 
----
+### 🧾 Transactions
+- Add, edit, and delete transactions
+- Automatically sorted by date
+- Category and type filtering
+- Clean, readable transaction history
 
-## 🛠 Tech Stack
+### 📅 History & Patterns
+- View transactions grouped by **date**
+- Switch to **category-wise** spending analysis
+- Designed for reflection and habit awareness
 
-- **Backend:** FastAPI
-- **Database:** PostgreSQL 16
-- **ORM:** SQLModel / SQLAlchemy
-- **Containerization:** Docker & Docker Compose
-- **Testing:** Pytest
-- **API Docs:** Swagger (OpenAPI)
+### 🤖 Smart Mascot (Optional)
+- Context-aware spending insights
+- Auto-hide and manual minimize options
+- Designed to be helpful, not distracting
 
----
+### ⚙️ User Controls
+- Dark / Light mode
+- Reduce motion for accessibility
+- Export all transactions as CSV
 
-## 📂 Project Structure
-
-```
-
-pf-tracker/
-│
-├── app/
-│   ├── api/
-│   │   └── v1/
-│   │       └── transactions.py
-│   ├── db.py
-│   ├── models.py
-│   ├── schemas.py
-│   └── main.py
-│
-├── tests/
-│   ├── conftest.py
-│   └── test_transactions.py
-│
-├── docker-compose.yaml
-├── Dockerfile
-├── requirements.txt
-├── .env
-└── README.md
-
-````
+### 🔐 Authentication
+- Secure login and registration
+- Branded, polished auth experience
 
 ---
 
-## ⚙️ Setup & Run Locally
+## 🛠️ Tech Stack
 
-### 1️⃣ Prerequisites
-- Docker
-- Docker Compose
+- **Frontend:** React + TypeScript  
+- **Animations:** Framer Motion  
+- **Styling:** Custom CSS (dark-mode first)  
+- **State Management:** React Context API  
+- **Routing:** React Router  
 
 ---
 
-### 2️⃣ Clone the Repository
+## 📸 Screenshots
+
+
+### Dashboard Overview
+
+![Dashboard](screenshots/dashboard.png)
+
+
+---
+
+### Transaction History (By Date)
+
+![Dashboard](screenshots/history-date.png)
+
+
+---
+
+### Transaction History (By Category)
+
+![Dashboard](screenshots/history-category.png)
+
+
+---
+
+### Mascot Insights
+
+![Dashboard](screenshots/mascot-insights.png)
+
+
+---
+
+### Login Page
+
+![Dashboard](screenshots/login-page.png)
+
+
+---
+
+## 🚀 Getting Started
 
 ```bash
-git clone https://github.com/<your-username>/pf-tracker.git
-cd pf-tracker
-````
+npm install
+npm run dev
 
----
 
-### 3️⃣ Environment Variables
+🎯 Design Philosophy
 
-Create a `.env` file in the project root:
+Minimal but expressive UI
 
-```env
-DATABASE_URL=postgresql://postgres:postgres@db:5432/pftracker
-```
+Features that justify their presence
 
----
+Clear information hierarchy
 
-### 4️⃣ Start the Application
+Optional guidance, never forced
 
-```bash
-docker compose up --build
-```
+🔮 Future Improvements (Optional)
 
----
+Monthly budget limits
 
-### 5️⃣ Access the API
+Search across transactions
 
-* API root:
+Downloadable monthly reports
 
-  ```
-  http://localhost:8000/
-  ```
+Cloud sync across devices
 
-* Swagger UI (API docs):
+👤 Author
 
-  ```
-  http://localhost:8000/docs
-  ```
+Venkat Dronadula
+Final-year CSE (AI & ML) student
+Focused on frontend engineering, UX design, and real-world projects.
 
----
+📄 License
 
-## 📌 API Endpoints
-
-### Create a Transaction
-
-**POST** `/api/v1/transactions/`
-
-```json
-{
-  "account_id": 1,
-  "category_id": 1,
-  "amount": "250.50",
-  "type": "expense",
-  "date": "2025-12-01",
-  "note": "Groceries"
-}
-```
-
----
-
-### List Transactions
-
-**GET** `/api/v1/transactions/`
-
-Returns all recorded transactions.
-
----
-
-## 🧪 Running Tests
-
-Run tests locally (outside Docker):
-
-```bash
-python -m pytest
-```
-
----
-
-## 📈 Roadmap
-
-Planned improvements:
-
-* Account and category management
-* Monthly and yearly summaries
-* Transaction filtering and search
-* Authentication (JWT)
-* Frontend dashboard
-
----
-
-## 🤝 Contributing
-
-This project is currently maintained for personal use, but contributions and suggestions are welcome.
-
----
-
-## 📜 License
-
-MIT License
-
----
-
-## 👤 Author
-
-Built by **Venkat Dronadula**
-Final-year CSE (AI & ML) student | Backend & API development enthusiast
-
----
+This project is for learning and portfolio purposes.

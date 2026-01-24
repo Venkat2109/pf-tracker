@@ -15,8 +15,15 @@ import { getTransactions } from "../api/transactions"
 import { exportToCSV } from "../utils/exportCSV"
 
 export default function Header() {
-  const { theme, toggleTheme, reduceMotion, toggleReduceMotion } =
-    useSettings()
+  const {
+    theme,
+    toggleTheme,
+    reduceMotion,
+    toggleReduceMotion,
+    showMascot,
+    toggleMascot
+  } = useSettings()
+
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -36,7 +43,11 @@ export default function Header() {
         setOpen(false)
       }
     }
-    if (open) document.addEventListener("mousedown", handleClickOutside)
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
     return () =>
       document.removeEventListener("mousedown", handleClickOutside)
   }, [open])
@@ -126,6 +137,19 @@ export default function Header() {
                         onChange={toggleReduceMotion}
                       />
                       Reduce animations
+                    </label>
+
+                    {/* 🆕 Mascot Toggle */}
+                    <label
+                      className="label"
+                      style={{ display: "flex", gap: 10 }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={showMascot}
+                        onChange={toggleMascot}
+                      />
+                      Show mascot
                     </label>
 
                     <hr style={{ borderColor: "var(--border)" }} />

@@ -7,26 +7,27 @@ interface SettingsContextType {
   toggleTheme: () => void
   reduceMotion: boolean
   toggleReduceMotion: () => void
+
+  /** 🆕 Mascot toggle */
+  showMascot: boolean
+  toggleMascot: () => void
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  // 🌙 DARK MODE DEFAULT
   const [theme, setTheme] = useState<Theme>("dark")
   const [reduceMotion, setReduceMotion] = useState(false)
+  const [showMascot, setShowMascot] = useState(true)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null
     const savedReduceMotion = localStorage.getItem("reduceMotion")
+    const savedMascot = localStorage.getItem("showMascot")
 
-    if (savedTheme) {
-      setTheme(savedTheme)
-    } else {
-      setTheme("dark") // force dark first time
-    }
-
+    if (savedTheme) setTheme(savedTheme)
     if (savedReduceMotion) setReduceMotion(savedReduceMotion === "true")
+    if (savedMascot) setShowMascot(savedMascot === "true")
   }, [])
 
   useEffect(() => {
@@ -38,6 +39,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("reduceMotion", String(reduceMotion))
   }, [reduceMotion])
 
+  useEffect(() => {
+    localStorage.setItem("showMascot", String(showMascot))
+  }, [showMascot])
+
   return (
     <SettingsContext.Provider
       value={{
@@ -45,7 +50,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         toggleTheme: () =>
           setTheme(prev => (prev === "light" ? "dark" : "light")),
         reduceMotion,
-        toggleReduceMotion: () => setReduceMotion(p => !p)
+        toggleReduceMotion: () => setReduceMotion(p => !p),
+
+        showMascot,
+        toggleMascot: () => setShowMascot(p => !p)
       }}
     >
       {children}
