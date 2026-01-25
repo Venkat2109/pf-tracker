@@ -94,7 +94,7 @@ Make sure you have:
 ### 🔥 Quick Setup (One Command)
 
 ```bash
-git clone https://github.com/<your-username>/spendly.git
+git clone https://github.com/Venkat2109/pf-tracker.git
 cd spendly
 node scripts/setup.js
 ```
@@ -139,7 +139,6 @@ Backend (backend/.env)
 DATABASE_URL=postgresql://postgres:password@localhost:5432/spendly
 JWT_SECRET=your-secret-key
 FRONTEND_URL=http://localhost:5173
-
 Frontend (frontend/.env)
 VITE_API_BASE_URL=http://localhost:3000
 
