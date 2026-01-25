@@ -1,0 +1,7 @@
+{
+  "name": "spendly",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.js"
+  }
+}

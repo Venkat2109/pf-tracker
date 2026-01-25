@@ -43,60 +43,107 @@ The project focuses on **clarity, usability, and thoughtful UX** rather than fea
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** React + TypeScript  
-- **Animations:** Framer Motion  
-- **Styling:** Custom CSS (dark-mode first)  
-- **State Management:** React Context API  
-- **Routing:** React Router  
+### Frontend
+- React + TypeScript
+- Framer Motion (animations)
+- Custom CSS (dark-mode first)
+- React Router
+- Context API
+
+### Backend
+- Node.js + Express
+- PostgreSQL
+- Prisma ORM
+- JWT Authentication
 
 ---
 
 ## 📸 Screenshots
 
+> Replace the placeholder images with your own screenshots.
 
 ### Dashboard Overview
-
 ![Dashboard](screenshots/dashboard.png)
 
-
----
-
 ### Transaction History (By Date)
-
-![Dashboard](screenshots/history-date.png)
-
-
----
+![History Date](screenshots/history-date.png)
 
 ### Transaction History (By Category)
-
-![Dashboard](screenshots/history-category.png)
-
-
----
+![History Category](screenshots/history-category.png)
 
 ### Mascot Insights
-
-![Dashboard](screenshots/mascot-insight.png)
-
-
----
+![Mascot](screenshots/mascot-insight.png)
 
 ### Login Page
-
-![Dashboard](screenshots/login-page.png)
-
+![Login](screenshots/login-page.png)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Recommended)
+
+Spendly includes a **one-command setup script** that installs and runs both the frontend and backend.
+
+### Prerequisites
+Make sure you have:
+- **Node.js** (v18 or later)
+- **npm**
+- **PostgreSQL** running locally
+
+---
+
+### 🔥 Quick Setup (One Command)
 
 ```bash
-npm install
-npm run dev
+git clone https://github.com/<your-username>/spendly.git
+cd spendly
+node scripts/setup.js
 ```
 
-🎯 Design Philosophy
+This script will:
+
+- Install backend dependencies
+
+- Install frontend dependencies
+
+- Create required .env files
+
+- Run database migrations
+
+- Start both servers
+
+After setup:
+
+- Frontend → http://localhost:5173
+
+- Backend → http://localhost:3000
+
+### 🧪 Manual Setup (Optional)
+
+If you prefer manual control:
+
+Backend
+cd backend
+npm install
+cp .env.example .env
+npx prisma migrate dev
+npm run dev
+
+Frontend
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+
+### 🔐 Environment Variables
+Backend (backend/.env)
+DATABASE_URL=postgresql://postgres:password@localhost:5432/spendly
+JWT_SECRET=your-secret-key
+FRONTEND_URL=http://localhost:5173
+
+Frontend (frontend/.env)
+VITE_API_BASE_URL=http://localhost:3000
+
+### 🎯 Design Philosophy
 
 Minimal but expressive UI
 
@@ -106,22 +153,15 @@ Clear information hierarchy
 
 Optional guidance, never forced
 
-🔮 Future Improvements (Optional)
 
-Monthly budget limits
-
-Search across transactions
-
-Downloadable monthly reports
-
-Cloud sync across devices
-
-👤 Author
+### 👤 Author
 
 Venkat Dronadula
 Final-year CSE (AI & ML) student
-Focused on frontend engineering, UX design, and real-world projects.
 
-📄 License
+### 📄 License
 
-This project is for learning and portfolio purposes.
+This project is built for learning, experimentation, and portfolio use.
+
+### ⭐ If you like this project
+Feel free to fork it, experiment, or use it as a base for your own finance tools.
