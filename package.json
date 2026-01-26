@@ -3,5 +3,11 @@
   "private": true,
   "scripts": {
     "setup": "node scripts/setup.js"
+  },
+  "devDependencies": {
+    "prisma": "^7.3.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.3.0"
   }
 }
