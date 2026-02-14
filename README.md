@@ -1,8 +1,8 @@
 # Spendly 💸
 
-Spendly is a modern personal finance tracker designed to help users understand and improve their spending habits through clean visuals, smart insights, and a friendly optional assistant.
+Spendly is a modern full-stack personal finance tracker designed to help users understand and improve their spending habits through clean visuals, smart insights, and thoughtful UX.
 
-The project focuses on **clarity, usability, and thoughtful UX** rather than feature overload.
+The project focuses on **clarity, usability, and intentional feature design** — not feature overload.
 
 ---
 
@@ -10,34 +10,36 @@ The project focuses on **clarity, usability, and thoughtful UX** rather than fea
 
 ### 📊 Dashboard
 - Monthly income, expense, and balance overview
-- Automatically filtered transactions by month
-- Interactive charts and spending heatmap
-- Top spending categories at a glance
+- Automatic month-based filtering
+- Interactive charts
+- Expense heatmap
+- Top spending categories
 
 ### 🧾 Transactions
-- Add, edit, and delete transactions
-- Automatically sorted by date
-- Category and type filtering
-- Clean, readable transaction history
+- Add, edit, delete transactions
+- Automatically sorted by date (newest first)
+- Category & type filtering
+- Clean grouped history view
 
 ### 📅 History & Patterns
-- View transactions grouped by **date**
-- Switch to **category-wise** spending analysis
-- Designed for reflection and habit awareness
+- Grouped by **date**
+- Toggle to **category-wise** analysis
+- Designed for reflection and spending awareness
 
 ### 🤖 Smart Mascot (Optional)
-- Context-aware spending insights
-- Auto-hide and manual minimize options
-- Designed to be helpful, not distracting
+- Context-aware financial insights
+- Auto-hide + manual minimize toggle
+- Mood-based animations
+- Fully optional (can be disabled)
 
 ### ⚙️ User Controls
 - Dark / Light mode
-- Reduce motion for accessibility
-- Export all transactions as CSV
+- Reduce motion (accessibility)
+- CSV export
 
 ### 🔐 Authentication
-- Secure login and registration
-- Branded, polished auth experience
+- Secure JWT-based login & registration
+- Per-user transaction isolation
 
 ---
 
@@ -45,30 +47,29 @@ The project focuses on **clarity, usability, and thoughtful UX** rather than fea
 
 ### Frontend
 - React + TypeScript
-- Framer Motion (animations)
-- Custom CSS (dark-mode first)
 - React Router
+- Framer Motion
 - Context API
+- Custom CSS (dark-mode first)
 
 ### Backend
-- Node.js + Express
+- FastAPI (Python)
+- SQLModel (ORM)
 - PostgreSQL
-- Prisma ORM
 - JWT Authentication
+- Docker (database + API container)
 
 ---
 
 ## 📸 Screenshots
 
-> Replace the placeholder images with your own screenshots.
-
-### Dashboard Overview
+### Dashboard
 ![Dashboard](screenshots/dashboard.png)
 
-### Transaction History (By Date)
+### History (By Date)
 ![History Date](screenshots/history-date.png)
 
-### Transaction History (By Category)
+### History (By Category)
 ![History Category](screenshots/history-category.png)
 
 ### Mascot Insights
@@ -79,88 +80,153 @@ The project focuses on **clarity, usability, and thoughtful UX** rather than fea
 
 ---
 
-## 🚀 Getting Started (Recommended)
+# 🚀 Getting Started
 
-Spendly includes a **one-command setup script** that installs and runs both the frontend and backend.
-
-### Prerequisites
-Make sure you have:
-- **Node.js** (v18 or later)
-- **npm**
-- **PostgreSQL** running locally
+Spendly is designed to run locally using Docker for the backend.
 
 ---
 
-### 🔥 Quick Setup (One Command)
+## 🧰 Prerequisites
+
+Make sure you have installed:
+
+- Node.js (v18+ recommended)
+- npm
+- Docker Desktop
+
+---
+
+# 🔥 Quick Start (Recommended)
+
+### 1️⃣ Clone the repository
 
 ```bash
 git clone https://github.com/Venkat2109/pf-tracker.git
-cd spendly
-node scripts/setup.js
+cd pf-tracker
+````
+
+---
+
+### 2️⃣ Start Backend (Docker)
+
+From the project root:
+
+```bash
+docker compose up --build
 ```
 
-This script will:
+This will:
 
-- Install backend dependencies
+* Start PostgreSQL container
+* Start FastAPI backend
+* Automatically create database tables
 
-- Install frontend dependencies
+Backend will run at:
 
-- Create required .env files
+```
+http://localhost:8000
+```
 
-- Run database migrations
+API docs available at:
 
-- Start both servers
+```
+http://localhost:8000/docs
+```
 
-After setup:
+---
 
-- Frontend → http://localhost:5173
+### 3️⃣ Start Frontend
 
-- Backend → http://localhost:3000
+Open a new terminal:
 
-### 🧪 Manual Setup (Optional)
-
-If you prefer manual control:
-
-Backend
-cd backend
-npm install
-cp .env.example .env
-npx prisma migrate dev
-npm run dev
-
-Frontend
+```bash
 cd frontend
 npm install
-cp .env.example .env
 npm run dev
+```
 
-### 🔐 Environment Variables
-Backend (backend/.env)
-DATABASE_URL=postgresql://postgres:password@localhost:5432/spendly
-JWT_SECRET=your-secret-key
-FRONTEND_URL=http://localhost:5173
-Frontend (frontend/.env)
-VITE_API_BASE_URL=http://localhost:3000
+Frontend will run at:
 
-### 🎯 Design Philosophy
+```
+http://localhost:5173
+```
 
-Minimal but expressive UI
+---
 
-Features that justify their presence
+## 🔐 Environment Variables
 
-Clear information hierarchy
+### Backend (.env)
 
-Optional guidance, never forced
+Inside project root:
 
+```
+DATABASE_URL=postgresql://postgres:postgres@db:5432/pftracker
+SECRET_KEY=SUPER_SECRET_DEV_KEY
+```
 
-### 👤 Author
+---
+
+### Frontend (.env)
+
+Inside `frontend/`:
+
+```
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+---
+
+# 🧠 How Data Works
+
+* Each user has isolated data.
+* Data is stored in PostgreSQL running in Docker.
+* If you stop Docker, data persists via volume storage.
+* This project runs locally and does not share data between users.
+
+---
+
+# 🎯 Design Philosophy
+
+* Minimal but expressive UI
+* Strong information hierarchy
+* Features that justify their presence
+* Optional guidance, never forced
+* Thoughtful UX over feature overload
+
+---
+
+# 📌 Project Purpose
+
+Spendly is built as:
+
+* A full-stack portfolio project
+* A demonstration of frontend + backend integration
+* An example of UX-focused engineering
+
+It is intentionally not overcomplicated.
+
+---
+
+# 👤 Author
 
 Venkat Dronadula
 Final-year CSE (AI & ML) student
+Focused on frontend engineering, system design, and clean UX architecture.
 
-### 📄 License
+---
+
+# 📄 License
 
 This project is built for learning, experimentation, and portfolio use.
 
-### ⭐ If you like this project
-Feel free to fork it, experiment, or use it as a base for your own finance tools.
+---
+
+# ⭐ If You Like This Project
+
+Feel free to:
+
+* Fork it
+* Experiment with new features
+* Use it as a base for your own finance tools
+
+---
